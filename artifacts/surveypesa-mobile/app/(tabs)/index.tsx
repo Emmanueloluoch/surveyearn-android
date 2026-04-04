@@ -65,11 +65,15 @@ function getDayProgressPct(): number {
   return secs / 86400;
 }
 
-function getTodaysSurveyIds(allIds: number[]): number[] {
+function getTodaysSurveyIds(allIds: number[], userId: number): number[] {
   const dayNum = Math.floor(Date.now() / 86400000);
-  return [...allIds]
-    .sort((a, b) => ((a * dayNum * 1337) % 9973) - ((b * dayNum * 1337) % 9973))
-    .slice(0, DAILY_FREE_LIMIT);
+  const seed = dayNum * 100003 + userId * 7919;
+  const arr = [...allIds];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.abs((seed * (i + 1) * 2654435761) >>> 0) % (i + 1);
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr.slice(0, DAILY_FREE_LIMIT);
 }
 
 export default function HomeScreen() {
@@ -133,7 +137,7 @@ export default function HomeScreen() {
   const welcomeDone = welcomeSurvey ? completedSet.has(welcomeSurvey.id) : false;
   const topicSurveys = allPublished.filter((s) => s.title !== "Welcome Bonus Survey");
 
-  const todaysSurveyIds = new Set(getTodaysSurveyIds(topicSurveys.map((s) => s.id)));
+  const todaysSurveyIds = new Set(getTodaysSurveyIds(topicSurveys.map((s) => s.id), user?.userId ?? 0));
   const todaysSurveys = topicSurveys.filter((s) => todaysSurveyIds.has(s.id));
   const browseAll = topicSurveys;
 
