@@ -35,6 +35,8 @@ export const LoginResponse = zod.object({
   name: zod.string(),
   phone: zod.string(),
   points: zod.number(),
+  isActivated: zod.boolean(),
+  isVip: zod.boolean(),
   welcomeSurveyId: zod.number().nullable(),
 });
 
@@ -51,6 +53,7 @@ export const GetUserResponse = zod.object({
   phone: zod.string(),
   points: zod.number(),
   isActivated: zod.boolean(),
+  isVip: zod.boolean(),
   createdAt: zod.string(),
 });
 
@@ -79,6 +82,23 @@ export const ActivateUserBody = zod.object({
 
 export const ActivateUserResponse = zod.object({
   isActivated: zod.boolean(),
+  points: zod.number(),
+  message: zod.string(),
+});
+
+/**
+ * @summary Upgrade account to VIP via M-Pesa payment verification
+ */
+export const UpgradeToVipParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpgradeToVipBody = zod.object({
+  mpesaCode: zod.string(),
+});
+
+export const UpgradeToVipResponse = zod.object({
+  isVip: zod.boolean(),
   points: zod.number(),
   message: zod.string(),
 });

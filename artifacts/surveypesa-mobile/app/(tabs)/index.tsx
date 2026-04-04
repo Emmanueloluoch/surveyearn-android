@@ -87,6 +87,7 @@ export default function HomeScreen() {
   const [tickerIdx, setTickerIdx] = useState(0);
   const [dailyDoneIds, setDailyDoneIds] = useState<number[]>([]);
   const [showActivationModal, setShowActivationModal] = useState(false);
+  const [showVipModal, setShowVipModal] = useState(false);
   const tickerOpacity = useRef(new Animated.Value(1)).current;
 
   const { data: surveys, isLoading, refetch, isRefetching } = useListSurveys();
@@ -780,7 +781,12 @@ export default function HomeScreen() {
 
           {browseAll.map((survey) => {
             const done = completedSet.has(survey.id);
-            const locked = !done && (!user?.isActivated || dailyLimitReached);
+            const notActivated = !user?.isActivated;
+            const notVip = !user?.isVip;
+            const locked = !done && (notActivated || notVip);
+            const onLocked = notActivated
+              ? () => setShowActivationModal(true)
+              : () => setShowVipModal(true);
             return (
               <SurveyCard
                 key={survey.id}
@@ -788,7 +794,7 @@ export default function HomeScreen() {
                 locked={locked}
                 done={done}
                 onPress={() => router.push(`/survey/${survey.id}`)}
-                onLocked={() => setShowActivationModal(true)}
+                onLocked={onLocked}
               />
             );
           })}
@@ -852,6 +858,69 @@ export default function HomeScreen() {
                 onPress={() => { setShowActivationModal(false); router.push("/activate"); }}
               >
                 <Text style={{ fontFamily: "Inter_700Bold", fontSize: 14, color: "#ffffff" }}>Activate Now</Text>
+              </Pressable>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* VIP UPGRADE MODAL */}
+      <Modal
+        visible={showVipModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowVipModal(false)}
+      >
+        <Pressable
+          style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", alignItems: "center", padding: 24 }}
+          onPress={() => setShowVipModal(false)}
+        >
+          <Pressable
+            style={{
+              backgroundColor: colors.card,
+              borderRadius: 20,
+              padding: 24,
+              width: "100%",
+              maxWidth: 360,
+              alignItems: "center",
+              gap: 8,
+            }}
+            onPress={() => {}}
+          >
+            <View style={{
+              width: 60, height: 60, borderRadius: 30,
+              backgroundColor: "#f3e8ff",
+              alignItems: "center", justifyContent: "center",
+              marginBottom: 4,
+            }}>
+              <Text style={{ fontSize: 30 }}>👑</Text>
+            </View>
+            <Text style={{ fontFamily: "Inter_700Bold", fontSize: 18, color: colors.foreground, textAlign: "center" }}>
+              VIP Access Required
+            </Text>
+            <Text style={{ fontFamily: "Inter_400Regular", fontSize: 14, color: colors.mutedForeground, textAlign: "center", lineHeight: 20 }}>
+              Your daily 6 surveys are done. Upgrade to <Text style={{ fontFamily: "Inter_700Bold", color: "#7c3aed" }}>VIP</Text> for <Text style={{ fontFamily: "Inter_700Bold", color: colors.foreground }}>KSh 500</Text> to unlock unlimited access to all surveys every day. The fee is added to your balance!
+            </Text>
+            <View style={{ flexDirection: "row", gap: 12, marginTop: 8, width: "100%" }}>
+              <Pressable
+                style={({ pressed }) => [{
+                  flex: 1, paddingVertical: 13, borderRadius: 12,
+                  backgroundColor: colors.muted,
+                  alignItems: "center", opacity: pressed ? 0.7 : 1,
+                }]}
+                onPress={() => setShowVipModal(false)}
+              >
+                <Text style={{ fontFamily: "Inter_600SemiBold", fontSize: 14, color: colors.mutedForeground }}>Later</Text>
+              </Pressable>
+              <Pressable
+                style={({ pressed }) => [{
+                  flex: 1.5, paddingVertical: 13, borderRadius: 12,
+                  backgroundColor: "#7c3aed",
+                  alignItems: "center", opacity: pressed ? 0.85 : 1,
+                }]}
+                onPress={() => { setShowVipModal(false); router.push("/vip"); }}
+              >
+                <Text style={{ fontFamily: "Inter_700Bold", fontSize: 14, color: "#ffffff" }}>Upgrade to VIP</Text>
               </Pressable>
             </View>
           </Pressable>

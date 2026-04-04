@@ -36,6 +36,8 @@ import type {
   UpdateQuestionBody,
   UpdateSurveyBody,
   User,
+  VipUpgradeBody,
+  VipUpgradeResponse,
   WithdrawalResponse,
 } from "./api.schemas";
 
@@ -545,6 +547,93 @@ export const useActivateUser = <
   TContext
 > => {
   return useMutation(getActivateUserMutationOptions(options));
+};
+
+/**
+ * @summary Upgrade account to VIP via M-Pesa payment verification
+ */
+export const getUpgradeToVipUrl = (id: number) => {
+  return `/api/users/${id}/vip`;
+};
+
+export const upgradeToVip = async (
+  id: number,
+  vipUpgradeBody: VipUpgradeBody,
+  options?: RequestInit,
+): Promise<VipUpgradeResponse> => {
+  return customFetch<VipUpgradeResponse>(getUpgradeToVipUrl(id), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(vipUpgradeBody),
+  });
+};
+
+export const getUpgradeToVipMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof upgradeToVip>>,
+    TError,
+    { id: number; data: BodyType<VipUpgradeBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof upgradeToVip>>,
+  TError,
+  { id: number; data: BodyType<VipUpgradeBody> },
+  TContext
+> => {
+  const mutationKey = ["upgradeToVip"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof upgradeToVip>>,
+    { id: number; data: BodyType<VipUpgradeBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return upgradeToVip(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpgradeToVipMutationResult = NonNullable<
+  Awaited<ReturnType<typeof upgradeToVip>>
+>;
+export type UpgradeToVipMutationBody = BodyType<VipUpgradeBody>;
+export type UpgradeToVipMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Upgrade account to VIP via M-Pesa payment verification
+ */
+export const useUpgradeToVip = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof upgradeToVip>>,
+    TError,
+    { id: number; data: BodyType<VipUpgradeBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof upgradeToVip>>,
+  TError,
+  { id: number; data: BodyType<VipUpgradeBody> },
+  TContext
+> => {
+  return useMutation(getUpgradeToVipMutationOptions(options));
 };
 
 /**

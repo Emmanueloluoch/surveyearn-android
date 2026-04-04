@@ -167,6 +167,43 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /users/{id}/vip:
+    post:
+      operationId: upgradeToVip
+      tags: [users]
+      summary: Upgrade account to VIP via M-Pesa payment verification
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VipUpgradeBody"
+      responses:
+        "200":
+          description: VIP upgrade successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VipUpgradeResponse"
+        "400":
+          description: Already VIP or invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /users/{id}/withdraw:
     post:
       operationId: withdrawPoints
@@ -548,6 +585,8 @@ components:
           type: integer
         isActivated:
           type: boolean
+        isVip:
+          type: boolean
         createdAt:
           type: string
       required:
@@ -556,6 +595,7 @@ components:
         - phone
         - points
         - isActivated
+        - isVip
         - createdAt
 
     SignupBody:
@@ -588,6 +628,10 @@ components:
           type: string
         points:
           type: integer
+        isActivated:
+          type: boolean
+        isVip:
+          type: boolean
         welcomeSurveyId:
           type: ["integer", "null"]
       required:
@@ -595,7 +639,31 @@ components:
         - name
         - phone
         - points
+        - isActivated
+        - isVip
         - welcomeSurveyId
+
+    VipUpgradeBody:
+      type: object
+      properties:
+        mpesaCode:
+          type: string
+      required:
+        - mpesaCode
+
+    VipUpgradeResponse:
+      type: object
+      properties:
+        isVip:
+          type: boolean
+        points:
+          type: integer
+        message:
+          type: string
+      required:
+        - isVip
+        - points
+        - message
 
     ActivateBody:
       type: object

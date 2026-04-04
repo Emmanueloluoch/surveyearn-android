@@ -31,4 +31,6 @@ export * from "./updateQuestionBody";
 export * from "./updateQuestionBodyType";
 export * from "./updateSurveyBody";
 export * from "./user";
+export * from "./vipUpgradeBody";
+export * from "./vipUpgradeResponse";
 export * from "./withdrawalResponse";

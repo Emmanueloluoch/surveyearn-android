@@ -19,6 +19,7 @@ export interface User {
   phone: string;
   points: number;
   isActivated: boolean;
+  isVip: boolean;
   createdAt: string;
 }
 
@@ -36,8 +37,20 @@ export interface AuthResponse {
   name: string;
   phone: string;
   points: number;
+  isActivated: boolean;
+  isVip: boolean;
   /** @nullable */
   welcomeSurveyId: number | null;
+}
+
+export interface VipUpgradeBody {
+  mpesaCode: string;
+}
+
+export interface VipUpgradeResponse {
+  isVip: boolean;
+  points: number;
+  message: string;
 }
 
 export interface ActivateBody {

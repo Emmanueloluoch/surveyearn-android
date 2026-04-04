@@ -1,10 +1,11 @@
 import { Router, type IRouter } from "express";
 import { eq, sql } from "drizzle-orm";
 import { db, usersTable, completionsTable, withdrawalsTable } from "@workspace/db";
-import { GetUserParams, GetUserCompletionsParams, WithdrawPointsParams, ActivateUserParams, ActivateUserBody } from "@workspace/api-zod";
+import { GetUserParams, GetUserCompletionsParams, WithdrawPointsParams, ActivateUserParams, ActivateUserBody, UpgradeToVipParams, UpgradeToVipBody } from "@workspace/api-zod";
 import { sendMpesaPayout } from "../lib/mpesa";
 
 const ACTIVATION_FEE_KSH = 150;
+const VIP_FEE_KSH = 500;
 
 const MINIMUM_WITHDRAWAL_POINTS = 100;
 
@@ -33,6 +34,7 @@ router.get("/users/:id", async (req, res): Promise<void> => {
     phone: user.phone,
     points: user.points,
     isActivated: user.isActivated,
+    isVip: user.isVip,
     createdAt: user.createdAt,
   });
 });
@@ -94,6 +96,56 @@ router.post("/users/:id/activate", async (req, res): Promise<void> => {
     isActivated: true,
     points: updatedUser.points,
     message: `Account activated! KSh ${ACTIVATION_FEE_KSH} added to your balance.`,
+  });
+});
+
+router.post("/users/:id/vip", async (req, res): Promise<void> => {
+  const params = UpgradeToVipParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  const body = UpgradeToVipBody.safeParse(req.body);
+  if (!body.success) {
+    res.status(400).json({ error: body.error.message });
+    return;
+  }
+
+  const [user] = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.id, params.data.id));
+
+  if (!user) {
+    res.status(404).json({ error: "User not found" });
+    return;
+  }
+
+  if (!user.isActivated) {
+    res.status(400).json({ error: "Account must be activated before upgrading to VIP" });
+    return;
+  }
+
+  if (user.isVip) {
+    res.status(400).json({ error: "Account is already VIP" });
+    return;
+  }
+
+  const [updatedUser] = await db
+    .update(usersTable)
+    .set({
+      isVip: true,
+      vipMpesaCode: body.data.mpesaCode,
+      points: sql`${usersTable.points} + ${VIP_FEE_KSH}`,
+    })
+    .where(eq(usersTable.id, user.id))
+    .returning();
+
+  res.json({
+    isVip: true,
+    points: updatedUser.points,
+    message: `VIP access unlocked! KSh ${VIP_FEE_KSH} added to your balance.`,
   });
 });
 

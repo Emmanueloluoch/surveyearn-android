@@ -9,6 +9,8 @@ export const usersTable = pgTable("users", {
   points: integer("points").notNull().default(0),
   isActivated: boolean("is_activated").notNull().default(false),
   activationMpesaCode: text("activation_mpesa_code"),
+  isVip: boolean("is_vip").notNull().default(false),
+  vipMpesaCode: text("vip_mpesa_code"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

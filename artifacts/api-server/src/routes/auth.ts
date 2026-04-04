@@ -37,6 +37,7 @@ router.post("/auth/signup", async (req, res): Promise<void> => {
     phone: user.phone,
     points: user.points,
     isActivated: user.isActivated,
+    isVip: user.isVip,
     welcomeSurveyId,
   });
 });
@@ -64,6 +65,7 @@ router.post("/auth/login", async (req, res): Promise<void> => {
     phone: user.phone,
     points: user.points,
     isActivated: user.isActivated,
+    isVip: user.isVip,
     welcomeSurveyId: null,
   });
 });

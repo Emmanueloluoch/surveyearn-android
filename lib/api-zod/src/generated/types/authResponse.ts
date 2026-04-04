@@ -11,6 +11,8 @@ export interface AuthResponse {
   name: string;
   phone: string;
   points: number;
+  isActivated: boolean;
+  isVip: boolean;
   /** @nullable */
   welcomeSurveyId: number | null;
 }
