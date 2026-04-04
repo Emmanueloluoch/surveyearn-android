@@ -1,0 +1,8 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "iLroW0xQDEUeIo7UxW3Pi"
+uri = "file://artifacts/surveypesa-mobile/assets/images/icon.png"
+type = "image"
+title = "generated_image"
