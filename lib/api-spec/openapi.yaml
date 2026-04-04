@@ -3,13 +3,17 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Survey App API specification
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: surveys
+    description: Survey operations
+  - name: responses
+    description: Survey response operations
 paths:
   /healthz:
     get:
@@ -24,6 +28,289 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /surveys:
+    get:
+      operationId: listSurveys
+      tags: [surveys]
+      summary: List all surveys
+      responses:
+        "200":
+          description: List of surveys
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Survey"
+    post:
+      operationId: createSurvey
+      tags: [surveys]
+      summary: Create a new survey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSurveyBody"
+      responses:
+        "201":
+          description: Created survey
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Survey"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /surveys/{id}:
+    get:
+      operationId: getSurvey
+      tags: [surveys]
+      summary: Get a survey by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Survey details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Survey"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateSurvey
+      tags: [surveys]
+      summary: Update a survey
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSurveyBody"
+      responses:
+        "200":
+          description: Updated survey
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Survey"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteSurvey
+      tags: [surveys]
+      summary: Delete a survey
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /surveys/{id}/questions:
+    get:
+      operationId: listSurveyQuestions
+      tags: [surveys]
+      summary: List questions for a survey
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of questions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Question"
+
+  /surveys/{id}/responses:
+    get:
+      operationId: listSurveyResponses
+      tags: [responses]
+      summary: List all responses for a survey
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of responses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SurveyResponse"
+    post:
+      operationId: submitSurveyResponse
+      tags: [responses]
+      summary: Submit a response for a survey
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitResponseBody"
+      responses:
+        "201":
+          description: Submitted response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SurveyResponse"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /surveys/{id}/summary:
+    get:
+      operationId: getSurveySummary
+      tags: [surveys]
+      summary: Get aggregated summary for a survey
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Survey summary with answer breakdowns
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SurveySummary"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /questions:
+    post:
+      operationId: createQuestion
+      tags: [surveys]
+      summary: Create a new question for a survey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateQuestionBody"
+      responses:
+        "201":
+          description: Created question
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Question"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /questions/{id}:
+    patch:
+      operationId: updateQuestion
+      tags: [surveys]
+      summary: Update a question
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateQuestionBody"
+      responses:
+        "200":
+          description: Updated question
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Question"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteQuestion
+      tags: [surveys]
+      summary: Delete a question
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +321,197 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    Survey:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        isPublished:
+          type: boolean
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+        questionCount:
+          type: integer
+        responseCount:
+          type: integer
+      required:
+        - id
+        - title
+        - description
+        - isPublished
+        - createdAt
+        - updatedAt
+        - questionCount
+        - responseCount
+
+    CreateSurveyBody:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        isPublished:
+          type: boolean
+      required:
+        - title
+
+    UpdateSurveyBody:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        isPublished:
+          type: boolean
+
+    Question:
+      type: object
+      properties:
+        id:
+          type: integer
+        surveyId:
+          type: integer
+        text:
+          type: string
+        type:
+          type: string
+          enum: [text, single_choice, multiple_choice, rating]
+        options:
+          type: ["string", "null"]
+        orderIndex:
+          type: integer
+        required:
+          type: boolean
+        createdAt:
+          type: string
+      required:
+        - id
+        - surveyId
+        - text
+        - type
+        - options
+        - orderIndex
+        - required
+        - createdAt
+
+    CreateQuestionBody:
+      type: object
+      properties:
+        surveyId:
+          type: integer
+        text:
+          type: string
+        type:
+          type: string
+          enum: [text, single_choice, multiple_choice, rating]
+        options:
+          type: ["string", "null"]
+        orderIndex:
+          type: integer
+        required:
+          type: boolean
+      required:
+        - surveyId
+        - text
+        - type
+
+    UpdateQuestionBody:
+      type: object
+      properties:
+        text:
+          type: string
+        type:
+          type: string
+          enum: [text, single_choice, multiple_choice, rating]
+        options:
+          type: ["string", "null"]
+        orderIndex:
+          type: integer
+        required:
+          type: boolean
+
+    SurveyResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        surveyId:
+          type: integer
+        respondentName:
+          type: ["string", "null"]
+        answers:
+          type: string
+        submittedAt:
+          type: string
+      required:
+        - id
+        - surveyId
+        - respondentName
+        - answers
+        - submittedAt
+
+    SubmitResponseBody:
+      type: object
+      properties:
+        respondentName:
+          type: ["string", "null"]
+        answers:
+          type: object
+          additionalProperties:
+            type: string
+      required:
+        - answers
+
+    QuestionSummary:
+      type: object
+      properties:
+        questionId:
+          type: integer
+        questionText:
+          type: string
+        questionType:
+          type: string
+        answerBreakdown:
+          type: object
+          additionalProperties:
+            type: integer
+        totalAnswers:
+          type: integer
+      required:
+        - questionId
+        - questionText
+        - questionType
+        - answerBreakdown
+        - totalAnswers
+
+    SurveySummary:
+      type: object
+      properties:
+        surveyId:
+          type: integer
+        totalResponses:
+          type: integer
+        questions:
+          type: array
+          items:
+            $ref: "#/components/schemas/QuestionSummary"
+      required:
+        - surveyId
+        - totalResponses
+        - questions
