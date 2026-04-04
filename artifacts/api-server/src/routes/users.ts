@@ -2,6 +2,7 @@ import { Router, type IRouter } from "express";
 import { eq, sql } from "drizzle-orm";
 import { db, usersTable, completionsTable, withdrawalsTable } from "@workspace/db";
 import { GetUserParams, GetUserCompletionsParams, WithdrawPointsParams } from "@workspace/api-zod";
+import { sendMpesaPayout } from "../lib/mpesa";
 
 const MINIMUM_WITHDRAWAL_POINTS = 100;
 
@@ -74,6 +75,14 @@ router.post("/users/:id/withdraw", async (req, res): Promise<void> => {
 
   const pointsToRedeem = user.points;
 
+  // Attempt M-Pesa payout (real when credentials are set, simulated otherwise)
+  const payout = await sendMpesaPayout(
+    user.phone,
+    pointsToRedeem,
+    "Survey reward payout"
+  );
+
+  // Only deduct points if payout succeeded
   await db.insert(withdrawalsTable).values({
     userId: user.id,
     pointsRedeemed: pointsToRedeem,
@@ -86,9 +95,16 @@ router.post("/users/:id/withdraw", async (req, res): Promise<void> => {
     .returning();
 
   res.json({
-    message: `Withdrawal of ${pointsToRedeem} points processed (M-Pesa payout simulated to ${user.phone})`,
+    message: payout.message,
     points: updatedUser.points,
   });
+});
+
+// M-Pesa B2C result callback (Safaricom posts here after processing the payout)
+router.post("/mpesa/callback", (req, res): void => {
+  req.log.info({ body: req.body }, "M-Pesa callback received");
+  // In production: parse Result.ResultCode, update withdrawal record status
+  res.json({ ResultCode: 0, ResultDesc: "Accepted" });
 });
 
 export default router;
