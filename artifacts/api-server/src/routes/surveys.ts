@@ -1,6 +1,13 @@
 import { Router, type IRouter } from "express";
-import { eq, sql } from "drizzle-orm";
-import { db, surveysTable, questionsTable, surveyResponsesTable } from "@workspace/db";
+import { eq, sql, and } from "drizzle-orm";
+import {
+  db,
+  surveysTable,
+  questionsTable,
+  surveyResponsesTable,
+  completionsTable,
+  usersTable,
+} from "@workspace/db";
 import {
   CreateSurveyBody,
   UpdateSurveyBody,
@@ -12,6 +19,8 @@ import {
   SubmitSurveyResponseParams,
   SubmitSurveyResponseBody,
   GetSurveySummaryParams,
+  CompleteSurveyParams,
+  CompleteSurveyBody,
   CreateQuestionBody,
   UpdateQuestionParams,
   UpdateQuestionBody,
@@ -20,30 +29,28 @@ import {
 
 const router: IRouter = Router();
 
-router.get("/surveys", async (req, res): Promise<void> => {
+async function surveyWithCounts(survey: typeof surveysTable.$inferSelect) {
+  const [{ questionCount }] = await db
+    .select({ questionCount: sql<number>`count(*)::int` })
+    .from(questionsTable)
+    .where(eq(questionsTable.surveyId, survey.id));
+
+  const [{ responseCount }] = await db
+    .select({ responseCount: sql<number>`count(*)::int` })
+    .from(surveyResponsesTable)
+    .where(eq(surveyResponsesTable.surveyId, survey.id));
+
+  return {
+    ...survey,
+    questionCount,
+    responseCount,
+  };
+}
+
+router.get("/surveys", async (_req, res): Promise<void> => {
   const surveys = await db.select().from(surveysTable).orderBy(surveysTable.createdAt);
-
-  const surveysWithCounts = await Promise.all(
-    surveys.map(async (survey) => {
-      const [{ questionCount }] = await db
-        .select({ questionCount: sql<number>`count(*)::int` })
-        .from(questionsTable)
-        .where(eq(questionsTable.surveyId, survey.id));
-
-      const [{ responseCount }] = await db
-        .select({ responseCount: sql<number>`count(*)::int` })
-        .from(surveyResponsesTable)
-        .where(eq(surveyResponsesTable.surveyId, survey.id));
-
-      return {
-        ...survey,
-        questionCount,
-        responseCount,
-      };
-    })
-  );
-
-  res.json(surveysWithCounts);
+  const result = await Promise.all(surveys.map(surveyWithCounts));
+  res.json(result);
 });
 
 router.post("/surveys", async (req, res): Promise<void> => {
@@ -70,17 +77,7 @@ router.get("/surveys/:id", async (req, res): Promise<void> => {
     return;
   }
 
-  const [{ questionCount }] = await db
-    .select({ questionCount: sql<number>`count(*)::int` })
-    .from(questionsTable)
-    .where(eq(questionsTable.surveyId, survey.id));
-
-  const [{ responseCount }] = await db
-    .select({ responseCount: sql<number>`count(*)::int` })
-    .from(surveyResponsesTable)
-    .where(eq(surveyResponsesTable.surveyId, survey.id));
-
-  res.json({ ...survey, questionCount, responseCount });
+  res.json(await surveyWithCounts(survey));
 });
 
 router.patch("/surveys/:id", async (req, res): Promise<void> => {
@@ -107,17 +104,7 @@ router.patch("/surveys/:id", async (req, res): Promise<void> => {
     return;
   }
 
-  const [{ questionCount }] = await db
-    .select({ questionCount: sql<number>`count(*)::int` })
-    .from(questionsTable)
-    .where(eq(questionsTable.surveyId, survey.id));
-
-  const [{ responseCount }] = await db
-    .select({ responseCount: sql<number>`count(*)::int` })
-    .from(surveyResponsesTable)
-    .where(eq(surveyResponsesTable.surveyId, survey.id));
-
-  res.json({ ...survey, questionCount, responseCount });
+  res.json(await surveyWithCounts(survey));
 });
 
 router.delete("/surveys/:id", async (req, res): Promise<void> => {
@@ -134,6 +121,65 @@ router.delete("/surveys/:id", async (req, res): Promise<void> => {
   }
 
   res.sendStatus(204);
+});
+
+router.post("/surveys/:id/complete", async (req, res): Promise<void> => {
+  const params = CompleteSurveyParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  const parsed = CompleteSurveyBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+
+  const [survey] = await db.select().from(surveysTable).where(eq(surveysTable.id, params.data.id));
+  if (!survey) {
+    res.status(404).json({ error: "Survey not found" });
+    return;
+  }
+
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, parsed.data.userId));
+  if (!user) {
+    res.status(404).json({ error: "User not found" });
+    return;
+  }
+
+  const existing = await db
+    .select()
+    .from(completionsTable)
+    .where(
+      and(
+        eq(completionsTable.userId, parsed.data.userId),
+        eq(completionsTable.surveyId, params.data.id)
+      )
+    );
+
+  if (existing.length > 0) {
+    res.status(400).json({ error: "Survey already completed" });
+    return;
+  }
+
+  await db.insert(completionsTable).values({
+    userId: parsed.data.userId,
+    surveyId: params.data.id,
+    pointsEarned: survey.reward,
+  });
+
+  const [updatedUser] = await db
+    .update(usersTable)
+    .set({ points: sql`${usersTable.points} + ${survey.reward}` })
+    .where(eq(usersTable.id, parsed.data.userId))
+    .returning();
+
+  res.json({
+    points: updatedUser.points,
+    pointsEarned: survey.reward,
+    message: `You earned ${survey.reward} points for completing this survey!`,
+  });
 });
 
 router.get("/surveys/:id/questions", async (req, res): Promise<void> => {

@@ -13,11 +13,53 @@ export interface ErrorResponse {
   error: string;
 }
 
+export interface User {
+  id: number;
+  name: string;
+  phone: string;
+  points: number;
+  createdAt: string;
+}
+
+export interface SignupBody {
+  name: string;
+  phone: string;
+}
+
+export interface LoginBody {
+  phone: string;
+}
+
+export interface AuthResponse {
+  userId: number;
+  name: string;
+  phone: string;
+  points: number;
+}
+
+export interface WithdrawalResponse {
+  message: string;
+  points: number;
+}
+
+export interface CompleteSurveyBody {
+  userId: number;
+}
+
+export interface CompleteSurveyResponse {
+  points: number;
+  pointsEarned: number;
+  message: string;
+}
+
 export interface Survey {
   id: number;
   title: string;
   /** @nullable */
   description: string | null;
+  reward: number;
+  /** @nullable */
+  externalUrl: string | null;
   isPublished: boolean;
   createdAt: string;
   updatedAt: string;
@@ -29,6 +71,9 @@ export interface CreateSurveyBody {
   title: string;
   /** @nullable */
   description?: string | null;
+  reward?: number;
+  /** @nullable */
+  externalUrl?: string | null;
   isPublished?: boolean;
 }
 
@@ -36,6 +81,9 @@ export interface UpdateSurveyBody {
   title?: string;
   /** @nullable */
   description?: string | null;
+  reward?: number;
+  /** @nullable */
+  externalUrl?: string | null;
   isPublished?: boolean;
 }
 

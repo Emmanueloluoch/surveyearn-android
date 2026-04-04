@@ -10,10 +10,15 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: User authentication
+  - name: users
+    description: User operations
   - name: surveys
     description: Survey operations
   - name: responses
     description: Survey response operations
+
 paths:
   /healthz:
     get:
@@ -28,6 +33,133 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /auth/signup:
+    post:
+      operationId: signup
+      tags: [auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignupBody"
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Invalid request or phone already registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login with phone number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginBody"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /users/{id}:
+    get:
+      operationId: getUser
+      tags: [users]
+      summary: Get user profile and points balance
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /users/{id}/completions:
+    get:
+      operationId: getUserCompletions
+      tags: [users]
+      summary: Get surveys completed by a user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of completed survey IDs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: integer
+
+  /users/{id}/withdraw:
+    post:
+      operationId: withdrawPoints
+      tags: [users]
+      summary: Withdraw points via M-Pesa (simulated)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Withdrawal processed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WithdrawalResponse"
+        "400":
+          description: Not enough points or invalid user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /surveys:
     get:
@@ -46,7 +178,7 @@ paths:
     post:
       operationId: createSurvey
       tags: [surveys]
-      summary: Create a new survey
+      summary: Create a new survey (admin)
       requestBody:
         required: true
         content:
@@ -133,6 +265,43 @@ paths:
       responses:
         "204":
           description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /surveys/{id}/complete:
+    post:
+      operationId: completeSurvey
+      tags: [surveys]
+      summary: Mark a survey as completed and award points to the user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompleteSurveyBody"
+      responses:
+        "200":
+          description: Points awarded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompleteSurveyResponse"
+        "400":
+          description: Already completed or invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         "404":
           description: Not found
           content:
@@ -329,6 +498,95 @@ components:
       required:
         - error
 
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        phone:
+          type: string
+        points:
+          type: integer
+        createdAt:
+          type: string
+      required:
+        - id
+        - name
+        - phone
+        - points
+        - createdAt
+
+    SignupBody:
+      type: object
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+      required:
+        - name
+        - phone
+
+    LoginBody:
+      type: object
+      properties:
+        phone:
+          type: string
+      required:
+        - phone
+
+    AuthResponse:
+      type: object
+      properties:
+        userId:
+          type: integer
+        name:
+          type: string
+        phone:
+          type: string
+        points:
+          type: integer
+      required:
+        - userId
+        - name
+        - phone
+        - points
+
+    WithdrawalResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        points:
+          type: integer
+      required:
+        - message
+        - points
+
+    CompleteSurveyBody:
+      type: object
+      properties:
+        userId:
+          type: integer
+      required:
+        - userId
+
+    CompleteSurveyResponse:
+      type: object
+      properties:
+        points:
+          type: integer
+        pointsEarned:
+          type: integer
+        message:
+          type: string
+      required:
+        - points
+        - pointsEarned
+        - message
+
     Survey:
       type: object
       properties:
@@ -337,6 +595,10 @@ components:
         title:
           type: string
         description:
+          type: ["string", "null"]
+        reward:
+          type: integer
+        externalUrl:
           type: ["string", "null"]
         isPublished:
           type: boolean
@@ -352,6 +614,8 @@ components:
         - id
         - title
         - description
+        - reward
+        - externalUrl
         - isPublished
         - createdAt
         - updatedAt
@@ -365,6 +629,10 @@ components:
           type: string
         description:
           type: ["string", "null"]
+        reward:
+          type: integer
+        externalUrl:
+          type: ["string", "null"]
         isPublished:
           type: boolean
       required:
@@ -376,6 +644,10 @@ components:
         title:
           type: string
         description:
+          type: ["string", "null"]
+        reward:
+          type: integer
+        externalUrl:
           type: ["string", "null"]
         isPublished:
           type: boolean

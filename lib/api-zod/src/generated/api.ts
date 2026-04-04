@@ -16,12 +16,75 @@ export const HealthCheckResponse = zod.object({
 });
 
 /**
+ * @summary Register a new user
+ */
+export const SignupBody = zod.object({
+  name: zod.string(),
+  phone: zod.string(),
+});
+
+/**
+ * @summary Login with phone number
+ */
+export const LoginBody = zod.object({
+  phone: zod.string(),
+});
+
+export const LoginResponse = zod.object({
+  userId: zod.number(),
+  name: zod.string(),
+  phone: zod.string(),
+  points: zod.number(),
+});
+
+/**
+ * @summary Get user profile and points balance
+ */
+export const GetUserParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const GetUserResponse = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  phone: zod.string(),
+  points: zod.number(),
+  createdAt: zod.string(),
+});
+
+/**
+ * @summary Get surveys completed by a user
+ */
+export const GetUserCompletionsParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const GetUserCompletionsResponseItem = zod.number();
+export const GetUserCompletionsResponse = zod.array(
+  GetUserCompletionsResponseItem,
+);
+
+/**
+ * @summary Withdraw points via M-Pesa (simulated)
+ */
+export const WithdrawPointsParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const WithdrawPointsResponse = zod.object({
+  message: zod.string(),
+  points: zod.number(),
+});
+
+/**
  * @summary List all surveys
  */
 export const ListSurveysResponseItem = zod.object({
   id: zod.number(),
   title: zod.string(),
   description: zod.string().nullable(),
+  reward: zod.number(),
+  externalUrl: zod.string().nullable(),
   isPublished: zod.boolean(),
   createdAt: zod.string(),
   updatedAt: zod.string(),
@@ -31,11 +94,13 @@ export const ListSurveysResponseItem = zod.object({
 export const ListSurveysResponse = zod.array(ListSurveysResponseItem);
 
 /**
- * @summary Create a new survey
+ * @summary Create a new survey (admin)
  */
 export const CreateSurveyBody = zod.object({
   title: zod.string(),
   description: zod.string().nullish(),
+  reward: zod.number().optional(),
+  externalUrl: zod.string().nullish(),
   isPublished: zod.boolean().optional(),
 });
 
@@ -50,6 +115,8 @@ export const GetSurveyResponse = zod.object({
   id: zod.number(),
   title: zod.string(),
   description: zod.string().nullable(),
+  reward: zod.number(),
+  externalUrl: zod.string().nullable(),
   isPublished: zod.boolean(),
   createdAt: zod.string(),
   updatedAt: zod.string(),
@@ -67,6 +134,8 @@ export const UpdateSurveyParams = zod.object({
 export const UpdateSurveyBody = zod.object({
   title: zod.string().optional(),
   description: zod.string().nullish(),
+  reward: zod.number().optional(),
+  externalUrl: zod.string().nullish(),
   isPublished: zod.boolean().optional(),
 });
 
@@ -74,6 +143,8 @@ export const UpdateSurveyResponse = zod.object({
   id: zod.number(),
   title: zod.string(),
   description: zod.string().nullable(),
+  reward: zod.number(),
+  externalUrl: zod.string().nullable(),
   isPublished: zod.boolean(),
   createdAt: zod.string(),
   updatedAt: zod.string(),
@@ -86,6 +157,23 @@ export const UpdateSurveyResponse = zod.object({
  */
 export const DeleteSurveyParams = zod.object({
   id: zod.coerce.number(),
+});
+
+/**
+ * @summary Mark a survey as completed and award points to the user
+ */
+export const CompleteSurveyParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const CompleteSurveyBody = zod.object({
+  userId: zod.number(),
+});
+
+export const CompleteSurveyResponse = zod.object({
+  points: zod.number(),
+  pointsEarned: zod.number(),
+  message: zod.string(),
 });
 
 /**

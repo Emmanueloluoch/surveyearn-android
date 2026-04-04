@@ -3,13 +3,18 @@ import { useParams, useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useQueryClient } from "@tanstack/react-query";
 import { 
   useGetSurvey, 
   getGetSurveyQueryKey,
   useListSurveyQuestions,
   getListSurveyQuestionsQueryKey,
-  useSubmitSurveyResponse
+  useSubmitSurveyResponse,
+  useCompleteSurvey,
+  getGetUserQueryKey,
+  getGetUserCompletionsQueryKey
 } from "@workspace/api-client-react";
+import { useAuth } from "@/contexts/auth-context";
 import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,13 +27,16 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Coins } from "lucide-react";
 
 export default function SurveyTake() {
   const { id } = useParams<{ id: string }>();
   const surveyId = Number(id);
   const { toast } = useToast();
+  const { user, updatePoints } = useAuth();
+  const queryClient = useQueryClient();
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [earnedPoints, setEarnedPoints] = useState(0);
   
   const { data: survey, isLoading: isSurveyLoading, error: surveyError } = useGetSurvey(surveyId, {
     query: { enabled: !!surveyId, queryKey: getGetSurveyQueryKey(surveyId), retry: false }
@@ -38,11 +46,28 @@ export default function SurveyTake() {
     query: { enabled: !!surveyId, queryKey: getListSurveyQuestionsQueryKey(surveyId) }
   });
 
+  const completeSurveyMutation = useCompleteSurvey({
+    mutation: {
+      onSuccess: (data) => {
+        setEarnedPoints(data.pointsEarned);
+        updatePoints(user!.points + data.pointsEarned);
+        queryClient.invalidateQueries({ queryKey: getGetUserCompletionsQueryKey(user!.userId) });
+        queryClient.invalidateQueries({ queryKey: getGetUserQueryKey(user!.userId) });
+      },
+      onError: () => {
+        console.error("Failed to claim points");
+      }
+    }
+  });
+
   const submitResponse = useSubmitSurveyResponse({
     mutation: {
       onSuccess: () => {
         setIsSubmitted(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (user && survey?.reward && survey.reward > 0) {
+          completeSurveyMutation.mutate({ id: surveyId, data: { userId: user.userId } });
+        }
       },
       onError: () => {
         toast({ title: "Failed to submit response", variant: "destructive" });
@@ -75,7 +100,7 @@ export default function SurveyTake() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      respondentName: "",
+      respondentName: user ? user.name : "",
       answers: {}
     }
   });
@@ -151,6 +176,12 @@ export default function SurveyTake() {
             <CardDescription className="text-base mt-2">
               Thank you for completing "{survey?.title}". Your response has been recorded.
             </CardDescription>
+            {earnedPoints > 0 && (
+              <div className="mt-4 inline-flex items-center justify-center gap-2 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-500 font-bold px-4 py-2 rounded-full">
+                <Coins className="h-5 w-5" />
+                You earned {earnedPoints} points!
+              </div>
+            )}
           </CardHeader>
         </Card>
       </div>
@@ -166,9 +197,15 @@ export default function SurveyTake() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             
             {/* Header Card */}
-            <Card className="shadow-md border-t-8 border-t-primary rounded-xl overflow-hidden">
+            <Card className="shadow-md border-t-8 border-t-primary rounded-xl overflow-hidden relative">
+              {survey?.reward ? (
+                <div className="absolute top-4 right-4 z-10 flex items-center gap-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-500 text-xs font-bold px-3 py-1.5 rounded-full shadow-sm">
+                  <Coins className="h-4 w-4" />
+                  Earn {survey.reward} pts
+                </div>
+              ) : null}
               <CardHeader className="bg-card pb-8">
-                <CardTitle className="text-3xl font-bold tracking-tight">{survey?.title}</CardTitle>
+                <CardTitle className="text-3xl font-bold tracking-tight pr-24">{survey?.title}</CardTitle>
                 {survey?.description && (
                   <CardDescription className="text-base mt-4 whitespace-pre-wrap text-foreground/80">
                     {survey.description}
@@ -308,9 +345,9 @@ export default function SurveyTake() {
                 type="submit" 
                 size="lg" 
                 className="px-8 font-semibold shadow-md"
-                disabled={submitResponse.isPending}
+                disabled={submitResponse.isPending || completeSurveyMutation.isPending}
               >
-                {submitResponse.isPending ? "Submitting..." : "Submit Response"}
+                {submitResponse.isPending || completeSurveyMutation.isPending ? "Submitting..." : "Submit Response"}
               </Button>
             </div>
             

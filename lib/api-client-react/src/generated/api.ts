@@ -17,17 +17,24 @@ import type {
 } from "@tanstack/react-query";
 
 import type {
+  AuthResponse,
+  CompleteSurveyBody,
+  CompleteSurveyResponse,
   CreateQuestionBody,
   CreateSurveyBody,
   ErrorResponse,
   HealthStatus,
+  LoginBody,
   Question,
+  SignupBody,
   SubmitResponseBody,
   Survey,
   SurveyResponse,
   SurveySummary,
   UpdateQuestionBody,
   UpdateSurveyBody,
+  User,
+  WithdrawalResponse,
 } from "./api.schemas";
 
 import { customFetch } from "../custom-fetch";
@@ -116,6 +123,426 @@ export function useHealthCheck<
 }
 
 /**
+ * @summary Register a new user
+ */
+export const getSignupUrl = () => {
+  return `/api/auth/signup`;
+};
+
+export const signup = async (
+  signupBody: SignupBody,
+  options?: RequestInit,
+): Promise<AuthResponse> => {
+  return customFetch<AuthResponse>(getSignupUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(signupBody),
+  });
+};
+
+export const getSignupMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof signup>>,
+    TError,
+    { data: BodyType<SignupBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof signup>>,
+  TError,
+  { data: BodyType<SignupBody> },
+  TContext
+> => {
+  const mutationKey = ["signup"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof signup>>,
+    { data: BodyType<SignupBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return signup(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type SignupMutationResult = NonNullable<
+  Awaited<ReturnType<typeof signup>>
+>;
+export type SignupMutationBody = BodyType<SignupBody>;
+export type SignupMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Register a new user
+ */
+export const useSignup = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof signup>>,
+    TError,
+    { data: BodyType<SignupBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof signup>>,
+  TError,
+  { data: BodyType<SignupBody> },
+  TContext
+> => {
+  return useMutation(getSignupMutationOptions(options));
+};
+
+/**
+ * @summary Login with phone number
+ */
+export const getLoginUrl = () => {
+  return `/api/auth/login`;
+};
+
+export const login = async (
+  loginBody: LoginBody,
+  options?: RequestInit,
+): Promise<AuthResponse> => {
+  return customFetch<AuthResponse>(getLoginUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(loginBody),
+  });
+};
+
+export const getLoginMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof login>>,
+    TError,
+    { data: BodyType<LoginBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof login>>,
+  TError,
+  { data: BodyType<LoginBody> },
+  TContext
+> => {
+  const mutationKey = ["login"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof login>>,
+    { data: BodyType<LoginBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return login(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type LoginMutationResult = NonNullable<
+  Awaited<ReturnType<typeof login>>
+>;
+export type LoginMutationBody = BodyType<LoginBody>;
+export type LoginMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Login with phone number
+ */
+export const useLogin = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof login>>,
+    TError,
+    { data: BodyType<LoginBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof login>>,
+  TError,
+  { data: BodyType<LoginBody> },
+  TContext
+> => {
+  return useMutation(getLoginMutationOptions(options));
+};
+
+/**
+ * @summary Get user profile and points balance
+ */
+export const getGetUserUrl = (id: number) => {
+  return `/api/users/${id}`;
+};
+
+export const getUser = async (
+  id: number,
+  options?: RequestInit,
+): Promise<User> => {
+  return customFetch<User>(getGetUserUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetUserQueryKey = (id: number) => {
+  return [`/api/users/${id}`] as const;
+};
+
+export const getGetUserQueryOptions = <
+  TData = Awaited<ReturnType<typeof getUser>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getUser>>, TError, TData>;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetUserQueryKey(id);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getUser>>> = ({
+    signal,
+  }) => getUser(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<Awaited<ReturnType<typeof getUser>>, TError, TData> & {
+    queryKey: QueryKey;
+  };
+};
+
+export type GetUserQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getUser>>
+>;
+export type GetUserQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Get user profile and points balance
+ */
+
+export function useGetUser<
+  TData = Awaited<ReturnType<typeof getUser>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getUser>>, TError, TData>;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetUserQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Get surveys completed by a user
+ */
+export const getGetUserCompletionsUrl = (id: number) => {
+  return `/api/users/${id}/completions`;
+};
+
+export const getUserCompletions = async (
+  id: number,
+  options?: RequestInit,
+): Promise<number[]> => {
+  return customFetch<number[]>(getGetUserCompletionsUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetUserCompletionsQueryKey = (id: number) => {
+  return [`/api/users/${id}/completions`] as const;
+};
+
+export const getGetUserCompletionsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getUserCompletions>>,
+  TError = ErrorType<unknown>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getUserCompletions>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetUserCompletionsQueryKey(id);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getUserCompletions>>
+  > = ({ signal }) => getUserCompletions(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getUserCompletions>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetUserCompletionsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getUserCompletions>>
+>;
+export type GetUserCompletionsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get surveys completed by a user
+ */
+
+export function useGetUserCompletions<
+  TData = Awaited<ReturnType<typeof getUserCompletions>>,
+  TError = ErrorType<unknown>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getUserCompletions>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetUserCompletionsQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Withdraw points via M-Pesa (simulated)
+ */
+export const getWithdrawPointsUrl = (id: number) => {
+  return `/api/users/${id}/withdraw`;
+};
+
+export const withdrawPoints = async (
+  id: number,
+  options?: RequestInit,
+): Promise<WithdrawalResponse> => {
+  return customFetch<WithdrawalResponse>(getWithdrawPointsUrl(id), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getWithdrawPointsMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof withdrawPoints>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof withdrawPoints>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  const mutationKey = ["withdrawPoints"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof withdrawPoints>>,
+    { id: number }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return withdrawPoints(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type WithdrawPointsMutationResult = NonNullable<
+  Awaited<ReturnType<typeof withdrawPoints>>
+>;
+
+export type WithdrawPointsMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Withdraw points via M-Pesa (simulated)
+ */
+export const useWithdrawPoints = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof withdrawPoints>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof withdrawPoints>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  return useMutation(getWithdrawPointsMutationOptions(options));
+};
+
+/**
  * @summary List all surveys
  */
 export const getListSurveysUrl = () => {
@@ -189,7 +616,7 @@ export function useListSurveys<
 }
 
 /**
- * @summary Create a new survey
+ * @summary Create a new survey (admin)
  */
 export const getCreateSurveyUrl = () => {
   return `/api/surveys`;
@@ -252,7 +679,7 @@ export type CreateSurveyMutationBody = BodyType<CreateSurveyBody>;
 export type CreateSurveyMutationError = ErrorType<ErrorResponse>;
 
 /**
- * @summary Create a new survey
+ * @summary Create a new survey (admin)
  */
 export const useCreateSurvey = <
   TError = ErrorType<ErrorResponse>,
@@ -528,6 +955,93 @@ export const useDeleteSurvey = <
   TContext
 > => {
   return useMutation(getDeleteSurveyMutationOptions(options));
+};
+
+/**
+ * @summary Mark a survey as completed and award points to the user
+ */
+export const getCompleteSurveyUrl = (id: number) => {
+  return `/api/surveys/${id}/complete`;
+};
+
+export const completeSurvey = async (
+  id: number,
+  completeSurveyBody: CompleteSurveyBody,
+  options?: RequestInit,
+): Promise<CompleteSurveyResponse> => {
+  return customFetch<CompleteSurveyResponse>(getCompleteSurveyUrl(id), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(completeSurveyBody),
+  });
+};
+
+export const getCompleteSurveyMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof completeSurvey>>,
+    TError,
+    { id: number; data: BodyType<CompleteSurveyBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof completeSurvey>>,
+  TError,
+  { id: number; data: BodyType<CompleteSurveyBody> },
+  TContext
+> => {
+  const mutationKey = ["completeSurvey"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof completeSurvey>>,
+    { id: number; data: BodyType<CompleteSurveyBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return completeSurvey(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CompleteSurveyMutationResult = NonNullable<
+  Awaited<ReturnType<typeof completeSurvey>>
+>;
+export type CompleteSurveyMutationBody = BodyType<CompleteSurveyBody>;
+export type CompleteSurveyMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Mark a survey as completed and award points to the user
+ */
+export const useCompleteSurvey = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof completeSurvey>>,
+    TError,
+    { id: number; data: BodyType<CompleteSurveyBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof completeSurvey>>,
+  TError,
+  { id: number; data: BodyType<CompleteSurveyBody> },
+  TContext
+> => {
+  return useMutation(getCompleteSurveyMutationOptions(options));
 };
 
 /**

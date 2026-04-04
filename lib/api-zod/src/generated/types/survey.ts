@@ -11,6 +11,9 @@ export interface Survey {
   title: string;
   /** @nullable */
   description: string | null;
+  reward: number;
+  /** @nullable */
+  externalUrl: string | null;
   isPublished: boolean;
   createdAt: string;
   updatedAt: string;

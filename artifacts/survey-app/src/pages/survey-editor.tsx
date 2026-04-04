@@ -36,6 +36,8 @@ import { Link } from "wouter";
 const surveySchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
+  reward: z.coerce.number().min(0).default(0),
+  externalUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
 });
 
 type SurveyFormValues = z.infer<typeof surveySchema>;
@@ -118,6 +120,8 @@ export default function SurveyEditor() {
     defaultValues: {
       title: "",
       description: "",
+      reward: 0,
+      externalUrl: "",
     }
   });
 
@@ -127,12 +131,18 @@ export default function SurveyEditor() {
       form.reset({
         title: survey.title,
         description: survey.description || "",
+        reward: survey.reward || 0,
+        externalUrl: survey.externalUrl || "",
       });
     }
   }, [survey, form]);
 
   const onSaveSurvey = (data: SurveyFormValues) => {
-    updateSurvey.mutate({ id: surveyId, data });
+    const payload = {
+      ...data,
+      externalUrl: data.externalUrl === "" ? null : data.externalUrl,
+    };
+    updateSurvey.mutate({ id: surveyId, data: payload });
   };
 
   const handleAddQuestion = (type: string) => {
@@ -291,6 +301,36 @@ export default function SurveyEditor() {
                       </FormItem>
                     )}
                   />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="reward"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Reward Points</FormLabel>
+                          <FormControl>
+                            <Input type="number" placeholder="0" min="0" {...field} />
+                          </FormControl>
+                          <FormDescription>Points awarded upon completion.</FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="externalUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>External URL (Optional)</FormLabel>
+                          <FormControl>
+                            <Input type="url" placeholder="https://..." {...field} />
+                          </FormControl>
+                          <FormDescription>If provided, acts as a link to an external survey.</FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </form>
               </Form>
             </CardContent>

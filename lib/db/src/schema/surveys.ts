@@ -1,11 +1,14 @@
 import { pgTable, text, serial, timestamp, boolean, integer } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
+import { usersTable } from "./users";
 
 export const surveysTable = pgTable("surveys", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
   description: text("description"),
+  reward: integer("reward").notNull().default(0),
+  externalUrl: text("external_url"),
   isPublished: boolean("is_published").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
@@ -41,3 +44,13 @@ export const surveyResponsesTable = pgTable("survey_responses", {
 export const insertSurveyResponseSchema = createInsertSchema(surveyResponsesTable).omit({ id: true, submittedAt: true });
 export type InsertSurveyResponse = z.infer<typeof insertSurveyResponseSchema>;
 export type SurveyResponse = typeof surveyResponsesTable.$inferSelect;
+
+export const completionsTable = pgTable("completions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }),
+  surveyId: integer("survey_id").notNull().references(() => surveysTable.id, { onDelete: "cascade" }),
+  pointsEarned: integer("points_earned").notNull(),
+  completedAt: timestamp("completed_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type Completion = typeof completionsTable.$inferSelect;
