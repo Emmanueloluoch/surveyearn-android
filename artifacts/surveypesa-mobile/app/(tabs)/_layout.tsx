@@ -18,13 +18,13 @@ function NativeTabLayout() {
         <Icon sf={{ default: "house", selected: "house.fill" }} />
         <Label>Home</Label>
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="refer">
-        <Icon sf={{ default: "gift", selected: "gift.fill" }} />
-        <Label>Refer</Label>
-      </NativeTabs.Trigger>
       <NativeTabs.Trigger name="wallet">
         <Icon sf={{ default: "creditcard", selected: "creditcard.fill" }} />
         <Label>Wallet</Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="refer">
+        <Icon sf={{ default: "gift", selected: "gift.fill" }} />
+        <Label>Refer</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="account">
         <Icon sf={{ default: "person", selected: "person.fill" }} />
@@ -87,18 +87,6 @@ function ClassicTabLayout() {
         }}
       />
       <Tabs.Screen
-        name="refer"
-        options={{
-          title: "Refer",
-          tabBarIcon: ({ color }) =>
-            isIOS ? (
-              <SymbolView name="gift" tintColor={color} size={24} />
-            ) : (
-              <Feather name="gift" size={22} color={color} />
-            ),
-        }}
-      />
-      <Tabs.Screen
         name="wallet"
         options={{
           title: "Wallet",
@@ -107,6 +95,18 @@ function ClassicTabLayout() {
               <SymbolView name="creditcard" tintColor={color} size={24} />
             ) : (
               <Feather name="credit-card" size={22} color={color} />
+            ),
+        }}
+      />
+      <Tabs.Screen
+        name="refer"
+        options={{
+          title: "Refer",
+          tabBarIcon: ({ color }) =>
+            isIOS ? (
+              <SymbolView name="gift" tintColor={color} size={24} />
+            ) : (
+              <Feather name="gift" size={22} color={color} />
             ),
         }}
       />
