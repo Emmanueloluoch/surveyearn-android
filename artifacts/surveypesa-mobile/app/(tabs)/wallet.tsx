@@ -230,7 +230,7 @@ export default function WalletScreen() {
                   { color: canWithdraw ? colors.success : colors.destructive },
                 ]}
               >
-                {canWithdraw ? "Ready" : "Need more points"}
+                {canWithdraw ? "Eligible" : "Below Minimum"}
               </Text>
             </View>
           </View>

@@ -236,10 +236,6 @@ export default function AccountScreen() {
         </View>
         <View style={styles.statsRow}>
           <View style={styles.statBox}>
-            <Text style={styles.statValue}>{currentPoints}</Text>
-            <Text style={styles.statLabel}>Points</Text>
-          </View>
-          <View style={styles.statBox}>
             <Text style={styles.statValue}>KSh {currentPoints}</Text>
             <Text style={styles.statLabel}>Balance</Text>
           </View>
