@@ -25,12 +25,14 @@ import { estimateMinutes, getCategoryColors, getSurveyMeta } from "@/utils/surve
 const DAILY_FREE_LIMIT = 6;
 
 const LIVE_WITHDRAWALS = [
-  { phone: "+254722···441", amount: "2,500", ago: "2 min ago" },
-  { phone: "+254711···893", amount: "750", ago: "4 min ago" },
-  { phone: "+254733···221", amount: "1,250", ago: "6 min ago" },
-  { phone: "+254798···110", amount: "500", ago: "8 min ago" },
-  { phone: "+254706···557", amount: "3,500", ago: "11 min ago" },
-  { phone: "+254720···882", amount: "1,000", ago: "13 min ago" },
+  { phone: "+254722···441", amount: "3,200", ago: "2 min ago" },
+  { phone: "+254711···893", amount: "5,500", ago: "4 min ago" },
+  { phone: "+254733···221", amount: "4,750", ago: "7 min ago" },
+  { phone: "+254798···110", amount: "3,000", ago: "10 min ago" },
+  { phone: "+254706···557", amount: "8,000", ago: "14 min ago" },
+  { phone: "+254720···882", amount: "6,300", ago: "17 min ago" },
+  { phone: "+254715···329", amount: "3,500", ago: "21 min ago" },
+  { phone: "+254701···774", amount: "10,000", ago: "25 min ago" },
 ];
 
 function getGreetingEmoji(): string {
