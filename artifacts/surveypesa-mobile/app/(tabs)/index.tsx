@@ -635,6 +635,47 @@ export default function HomeScreen() {
             </Animated.View>
           </View>
 
+          {/* DAILY PROGRESS */}
+          <View style={styles.sectionHeader}>
+            <View style={styles.sectionLeft}>
+              <Text style={{ fontSize: 16 }}>📈</Text>
+              <Text style={styles.sectionTitle}>Daily Progress</Text>
+            </View>
+            <Text style={styles.sectionRight}>
+              {dailyDoneCount >= DAILY_FREE_LIMIT ? "Limit reached" : `${DAILY_FREE_LIMIT - dailyDoneCount} remaining`}
+            </Text>
+          </View>
+
+          <View style={[styles.tickerCard, { padding: 16 }]}>
+            <Text style={{
+              fontFamily: "Inter_400Regular",
+              fontSize: 13,
+              color: colors.mutedForeground,
+              marginBottom: 12,
+            }}>
+              Today:{" "}
+              <Text style={{ fontFamily: "Inter_600SemiBold", color: colors.foreground }}>
+                {dailyDoneCount}/{DAILY_FREE_LIMIT} surveys
+              </Text>
+              {dailyDoneCount < DAILY_FREE_LIMIT
+                ? ` · ${DAILY_FREE_LIMIT - dailyDoneCount} remaining`
+                : " · Daily limit reached!"}
+            </Text>
+            <View style={[styles.progressTrack, { height: 8, marginBottom: 0 }]}>
+              <View style={[styles.progressFill, {
+                height: 8,
+                width: `${Math.min((dailyDoneCount / DAILY_FREE_LIMIT) * 100, 100)}%`,
+              }]} />
+            </View>
+            <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 8 }}>
+              <Text style={{ fontFamily: "Inter_400Regular", fontSize: 12, color: colors.mutedForeground }}>0%</Text>
+              <Text style={{ fontFamily: "Inter_400Regular", fontSize: 12, color: colors.mutedForeground }}>
+                {Math.round((dailyDoneCount / DAILY_FREE_LIMIT) * 100)}% complete
+              </Text>
+              <Text style={{ fontFamily: "Inter_400Regular", fontSize: 12, color: colors.mutedForeground }}>100%</Text>
+            </View>
+          </View>
+
           {/* WELCOME BONUS */}
           <View style={styles.sectionHeader}>
             <View style={styles.sectionLeft}>

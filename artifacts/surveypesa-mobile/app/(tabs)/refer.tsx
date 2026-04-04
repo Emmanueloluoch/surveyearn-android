@@ -1,4 +1,3 @@
-import { useGetUserCompletions, useListSurveys } from "@workspace/api-client-react";
 import { Feather } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
 import * as Haptics from "expo-haptics";
@@ -36,20 +35,7 @@ export default function ReferScreen() {
   const { user } = useAuth();
   const [copied, setCopied] = useState(false);
 
-  const { data: surveys } = useListSurveys();
-  const { data: completedIds } = useGetUserCompletions(user?.userId ?? 0, {
-    query: { enabled: !!user?.userId },
-  });
-
   const referralCode = user ? makeReferralCode(user.userId) : "XXXXXXXX";
-
-  const publishedSurveys = surveys?.filter((s) => s.isPublished) ?? [];
-  const completedSet = new Set(completedIds ?? []);
-  const available = publishedSurveys.filter((s) => !completedSet.has(s.id)).length;
-  const completedToday = completedSet.size;
-  const totalToday = publishedSurveys.length;
-  const dailyTarget = Math.min(totalToday, 3);
-  const progressPct = dailyTarget > 0 ? Math.min((completedToday / dailyTarget) * 100, 100) : 0;
 
   const shareMessage = `Join SurveyPesa KE and earn money by completing surveys! Use my referral code ${referralCode} when you sign up. Download now and start earning KSh today.`;
 
@@ -311,27 +297,6 @@ export default function ReferScreen() {
                 </View>
                 <Text style={styles.actionBtnText}>Earn More</Text>
               </Pressable>
-            </View>
-          </View>
-
-          <View>
-            <Text style={styles.sectionTitle}>Daily Progress</Text>
-            <View style={styles.progressCard}>
-              <Text style={styles.progressMeta}>
-                Today:{" "}
-                <Text style={styles.progressMetaBold}>
-                  {completedToday}/{dailyTarget} surveys
-                </Text>
-                {available > 0 ? ` · ${available} remaining` : " · All done!"}
-              </Text>
-              <View style={styles.progressTrack}>
-                <View style={[styles.progressFill, { width: `${progressPct}%` }]} />
-              </View>
-              <View style={styles.progressFooter}>
-                <Text style={styles.progressFooterText}>0%</Text>
-                <Text style={styles.progressFooterText}>{Math.round(progressPct)}% complete</Text>
-                <Text style={styles.progressFooterText}>100%</Text>
-              </View>
             </View>
           </View>
 
