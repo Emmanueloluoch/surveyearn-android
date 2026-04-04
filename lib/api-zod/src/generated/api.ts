@@ -35,6 +35,7 @@ export const LoginResponse = zod.object({
   name: zod.string(),
   phone: zod.string(),
   points: zod.number(),
+  welcomeSurveyId: zod.number().nullable(),
 });
 
 /**

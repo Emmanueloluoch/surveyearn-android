@@ -24,11 +24,12 @@ import { useColors } from "@/hooks/useColors";
 export default function SurveyDetailScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, welcome } = useLocalSearchParams<{ id: string; welcome?: string }>();
   const router = useRouter();
   const { user, updatePoints } = useAuth();
 
   const surveyId = Number(id);
+  const isWelcome = welcome === "true";
 
   const { data: survey, isLoading: surveyLoading } = useGetSurvey(surveyId);
   const { data: questions, isLoading: questionsLoading } =
@@ -288,6 +289,40 @@ export default function SurveyDetailScreen() {
   }
 
   if (done) {
+    if (isWelcome) {
+      return (
+        <View style={[styles.container, styles.doneBox]}>
+          <View style={[styles.doneBadge, { backgroundColor: colors.headerBg, width: 96, height: 96, borderRadius: 48 }]}>
+            <Text style={[styles.doneBadgeText, { fontSize: 44 }]}>★</Text>
+          </View>
+          <Text style={[styles.doneTitle, { fontSize: 28, marginTop: 8 }]}>
+            Welcome Bonus Unlocked!
+          </Text>
+          <View style={{
+            backgroundColor: colors.primary,
+            borderRadius: 14,
+            paddingHorizontal: 24,
+            paddingVertical: 12,
+            marginVertical: 12,
+          }}>
+            <Text style={{ fontFamily: "Inter_700Bold", fontSize: 32, color: "#ffffff", textAlign: "center" }}>
+              +KSh {earned}
+            </Text>
+          </View>
+          <Text style={styles.doneSub}>
+            Your KSh 1,000 welcome bonus has been added to your wallet.{"\n"}
+            Start completing more surveys to earn even more!
+          </Text>
+          <Pressable
+            style={[styles.doneBtn, { paddingHorizontal: 48 }]}
+            onPress={() => router.replace("/(tabs)")}
+          >
+            <Text style={styles.doneBtnText}>Start Earning</Text>
+          </Pressable>
+        </View>
+      );
+    }
+
     return (
       <View style={[styles.container, styles.doneBox]}>
         <View style={styles.doneBadge}>
@@ -394,12 +429,20 @@ export default function SurveyDetailScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {survey && (
+        {isWelcome ? (
+          <View style={[styles.rewardBanner, { backgroundColor: colors.headerBg, flexDirection: "column", alignItems: "flex-start", gap: 6 }]}>
+            <Text style={[styles.rewardAmount, { fontSize: 20 }]}>Welcome Bonus</Text>
+            <Text style={[styles.rewardLabel, { lineHeight: 20 }]}>
+              Answer {(questions ?? []).length} quick questions about yourself to unlock your{" "}
+              <Text style={{ fontFamily: "Inter_700Bold" }}>KSh 1,000</Text> welcome bonus!
+            </Text>
+          </View>
+        ) : survey ? (
           <View style={styles.rewardBanner}>
             <Text style={styles.rewardLabel}>{survey.title}</Text>
             <Text style={styles.rewardAmount}>KSh {survey.reward}</Text>
           </View>
-        )}
+        ) : null}
 
         {(questions ?? [])
           .sort((a, b) => a.orderIndex - b.orderIndex)

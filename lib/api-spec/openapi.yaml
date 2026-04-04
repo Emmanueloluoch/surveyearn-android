@@ -548,11 +548,14 @@ components:
           type: string
         points:
           type: integer
+        welcomeSurveyId:
+          type: ["integer", "null"]
       required:
         - userId
         - name
         - phone
         - points
+        - welcomeSurveyId
 
     WithdrawalResponse:
       type: object

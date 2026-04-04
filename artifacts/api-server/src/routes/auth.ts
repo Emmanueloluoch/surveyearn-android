@@ -2,6 +2,7 @@ import { Router, type IRouter } from "express";
 import { eq } from "drizzle-orm";
 import { db, usersTable } from "@workspace/db";
 import { SignupBody, LoginBody } from "@workspace/api-zod";
+import { ensureWelcomeSurvey } from "../lib/welcomeSurvey";
 
 const router: IRouter = Router();
 
@@ -22,16 +23,20 @@ router.post("/auth/signup", async (req, res): Promise<void> => {
     return;
   }
 
-  const [user] = await db
-    .insert(usersTable)
-    .values({ name: parsed.data.name, phone: parsed.data.phone })
-    .returning();
+  const [welcomeSurveyId, [user]] = await Promise.all([
+    ensureWelcomeSurvey(),
+    db
+      .insert(usersTable)
+      .values({ name: parsed.data.name, phone: parsed.data.phone })
+      .returning(),
+  ]);
 
   res.status(201).json({
     userId: user.id,
     name: user.name,
     phone: user.phone,
     points: user.points,
+    welcomeSurveyId,
   });
 });
 
@@ -57,6 +62,7 @@ router.post("/auth/login", async (req, res): Promise<void> => {
     name: user.name,
     phone: user.phone,
     points: user.points,
+    welcomeSurveyId: null,
   });
 });
 

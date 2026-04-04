@@ -56,7 +56,11 @@ export default function AuthScreen() {
         points: result.points,
       });
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      router.replace("/(tabs)");
+      if (mode === "signup" && result.welcomeSurveyId) {
+        router.replace(`/survey/${result.welcomeSurveyId}?welcome=true`);
+      } else {
+        router.replace("/(tabs)");
+      }
     } catch (err: unknown) {
       const msg =
         err instanceof Error ? err.message : "Something went wrong. Try again.";

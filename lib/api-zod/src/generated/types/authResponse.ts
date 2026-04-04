@@ -11,4 +11,6 @@ export interface AuthResponse {
   name: string;
   phone: string;
   points: number;
+  /** @nullable */
+  welcomeSurveyId: number | null;
 }
