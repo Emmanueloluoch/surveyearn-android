@@ -1,12 +1,15 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useGetUser, useGetUserCompletions, useListSurveys } from "@workspace/api-client-react";
-import { useRouter } from "expo-router";
-import React, { useCallback, useState } from "react";
+import { Feather } from "@expo/vector-icons";
+import { useFocusEffect, useRouter } from "expo-router";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
-  FlatList,
+  Animated,
   Platform,
   Pressable,
   RefreshControl,
+  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -15,8 +18,58 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useAuth } from "@/context/AuthContext";
 import { useColors } from "@/hooks/useColors";
+import { getDailyCompletions } from "@/utils/dailyCompletions";
+import { estimateMinutes, getCategoryColors, getSurveyMeta } from "@/utils/surveyMeta";
 
-type FilterTab = "all" | "available" | "done";
+const DAILY_FREE_LIMIT = 6;
+
+const LIVE_WITHDRAWALS = [
+  { phone: "+254722···441", amount: "2,500", ago: "2 min ago" },
+  { phone: "+254711···893", amount: "750", ago: "4 min ago" },
+  { phone: "+254733···221", amount: "1,250", ago: "6 min ago" },
+  { phone: "+254798···110", amount: "500", ago: "8 min ago" },
+  { phone: "+254706···557", amount: "3,500", ago: "11 min ago" },
+  { phone: "+254720···882", amount: "1,000", ago: "13 min ago" },
+];
+
+function getGreetingEmoji(): string {
+  const h = new Date().getHours();
+  if (h < 6) return "🌙";
+  if (h < 12) return "🌤";
+  if (h < 17) return "☀️";
+  if (h < 20) return "🌇";
+  return "🌙";
+}
+
+function getGreetingWord(): string {
+  const h = new Date().getHours();
+  if (h < 12) return "morning";
+  if (h < 17) return "afternoon";
+  return "evening";
+}
+
+function getCountdown(): string {
+  const now = new Date();
+  const midnight = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1));
+  const diff = midnight.getTime() - now.getTime();
+  const h = Math.floor(diff / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  const s = Math.floor((diff % 60000) / 1000);
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+
+function getDayProgressPct(): number {
+  const now = new Date();
+  const secs = now.getUTCHours() * 3600 + now.getUTCMinutes() * 60 + now.getUTCSeconds();
+  return secs / 86400;
+}
+
+function getTodaysSurveyIds(allIds: number[]): number[] {
+  const dayNum = Math.floor(Date.now() / 86400000);
+  return [...allIds]
+    .sort((a, b) => ((a * dayNum * 1337) % 9973) - ((b * dayNum * 1337) % 9973))
+    .slice(0, DAILY_FREE_LIMIT);
+}
 
 export default function HomeScreen() {
   const colors = useColors();
@@ -24,41 +77,78 @@ export default function HomeScreen() {
   const router = useRouter();
   const { user, updatePoints } = useAuth();
 
-  const [filter, setFilter] = useState<FilterTab>("all");
+  const [countdown, setCountdown] = useState(getCountdown);
+  const [dayPct, setDayPct] = useState(getDayProgressPct);
+  const [tickerIdx, setTickerIdx] = useState(0);
+  const [dailyDoneIds, setDailyDoneIds] = useState<number[]>([]);
+  const tickerOpacity = useRef(new Animated.Value(1)).current;
 
   const { data: surveys, isLoading, refetch, isRefetching } = useListSurveys();
   const { data: userData, refetch: refetchUser } = useGetUser(user?.userId ?? 0, {
     query: { enabled: !!user?.userId },
   });
-  const { data: completedIds } = useGetUserCompletions(user?.userId ?? 0, {
-    query: { enabled: !!user?.userId },
-  });
+  const { data: completedIds, refetch: refetchCompletions } = useGetUserCompletions(
+    user?.userId ?? 0,
+    { query: { enabled: !!user?.userId } }
+  );
 
-  const handleRefresh = useCallback(() => {
-    refetch();
-    refetchUser();
-    if (userData?.points !== undefined) {
-      updatePoints(userData.points);
-    }
-  }, [refetch, refetchUser, userData, updatePoints]);
+  useEffect(() => {
+    const id = setInterval(() => {
+      setCountdown(getCountdown());
+      setDayPct(getDayProgressPct());
+    }, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    const cycle = () => {
+      Animated.sequence([
+        Animated.timing(tickerOpacity, { toValue: 0, duration: 300, useNativeDriver: true }),
+        Animated.delay(100),
+        Animated.timing(tickerOpacity, { toValue: 1, duration: 300, useNativeDriver: true }),
+      ]).start(() => setTickerIdx((i) => (i + 1) % LIVE_WITHDRAWALS.length));
+    };
+    const id = setInterval(cycle, 3500);
+    return () => clearInterval(id);
+  }, [tickerOpacity]);
+
+  useFocusEffect(
+    useCallback(() => {
+      getDailyCompletions().then(setDailyDoneIds);
+      refetch();
+      refetchUser();
+      refetchCompletions();
+    }, [refetch, refetchUser, refetchCompletions])
+  );
+
+  useEffect(() => {
+    if (userData?.points !== undefined) updatePoints(userData.points);
+  }, [userData?.points, updatePoints]);
 
   const completedSet = new Set(completedIds ?? []);
-  const publishedSurveys = surveys?.filter((s) => s.isPublished) ?? [];
-  const filtered =
-    filter === "available"
-      ? publishedSurveys.filter((s) => !completedSet.has(s.id))
-      : filter === "done"
-      ? publishedSurveys.filter((s) => completedSet.has(s.id))
-      : publishedSurveys;
+  const allPublished = surveys?.filter((s) => s.isPublished) ?? [];
+  const welcomeSurvey = allPublished.find((s) => s.title === "Welcome Bonus Survey");
+  const welcomeDone = welcomeSurvey ? completedSet.has(welcomeSurvey.id) : false;
+  const topicSurveys = allPublished.filter((s) => s.title !== "Welcome Bonus Survey");
+
+  const todaysSurveyIds = new Set(getTodaysSurveyIds(topicSurveys.map((s) => s.id)));
+  const todaysSurveys = topicSurveys.filter((s) => todaysSurveyIds.has(s.id));
+  const browseAll = topicSurveys;
+
+  const dailyDoneCount = dailyDoneIds.filter((id) => completedSet.has(id)).length;
+  const dailyLimitReached = dailyDoneCount >= DAILY_FREE_LIMIT;
 
   const currentPoints = userData?.points ?? user?.points ?? 0;
   const topPad = Platform.OS === "web" ? 67 : insets.top;
+  const bottomPad = Platform.OS === "web" ? 34 + 84 : insets.bottom + 84;
+  const ticker = LIVE_WITHDRAWALS[tickerIdx];
 
   const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
+
     header: {
       backgroundColor: colors.headerBg,
-      paddingTop: topPad + 12,
+      paddingTop: topPad + 8,
       paddingBottom: 20,
       paddingHorizontal: 20,
     },
@@ -66,264 +156,593 @@ export default function HomeScreen() {
       fontFamily: "Inter_500Medium",
       fontSize: 14,
       color: "rgba(255,255,255,0.7)",
-      marginBottom: 4,
+      marginBottom: 2,
     },
-    name: {
+    greetingName: {
       fontFamily: "Inter_700Bold",
-      fontSize: 22,
-      color: "#ffffff",
-      marginBottom: 16,
-    },
-    balanceCard: {
-      backgroundColor: "rgba(255,255,255,0.12)",
-      borderRadius: 16,
-      padding: 16,
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-      marginBottom: 16,
-    },
-    balanceLabel: {
-      fontFamily: "Inter_400Regular",
-      fontSize: 13,
-      color: "rgba(255,255,255,0.7)",
-      marginBottom: 4,
-    },
-    balanceRow: {
-      flexDirection: "row",
-      alignItems: "flex-end",
-      gap: 4,
-    },
-    balanceCurrency: {
-      fontFamily: "Inter_500Medium",
-      fontSize: 14,
-      color: "rgba(255,255,255,0.7)",
-      marginBottom: 4,
-    },
-    balanceAmount: {
-      fontFamily: "Inter_700Bold",
-      fontSize: 32,
       color: "#ffffff",
     },
-    withdrawHint: {
+    subtitle: {
       fontFamily: "Inter_400Regular",
       fontSize: 12,
       color: "rgba(255,255,255,0.55)",
-      marginTop: 4,
+      marginBottom: 16,
     },
-    withdrawBtn: {
-      backgroundColor: colors.primary,
-      paddingHorizontal: 16,
-      paddingVertical: 10,
-      borderRadius: 10,
-    },
-    withdrawBtnText: {
-      fontFamily: "Inter_700Bold",
-      fontSize: 13,
-      color: "#fff",
-    },
-    filterRow: {
-      flexDirection: "row",
-      gap: 8,
-    },
-    filterBtn: {
-      paddingHorizontal: 14,
-      paddingVertical: 6,
-      borderRadius: 20,
-      backgroundColor: "rgba(255,255,255,0.15)",
-    },
-    filterBtnActive: {
-      backgroundColor: "#ffffff",
-    },
-    filterText: {
-      fontFamily: "Inter_500Medium",
-      fontSize: 13,
-      color: "rgba(255,255,255,0.8)",
-    },
-    filterTextActive: {
-      color: colors.headerBg,
-    },
-    body: {
-      flex: 1,
-      paddingHorizontal: 16,
-      paddingTop: 16,
-    },
-    card: {
-      backgroundColor: colors.card,
-      borderRadius: colors.radius,
-      padding: 16,
-      marginBottom: 12,
-      borderWidth: 1,
-      borderColor: colors.border,
-      flexDirection: "row",
-      alignItems: "center",
-    },
-    cardDone: { opacity: 0.6 },
-    info: { flex: 1 },
-    cardTitle: {
-      fontFamily: "Inter_600SemiBold",
-      fontSize: 15,
-      color: colors.foreground,
+    balLabel: {
+      fontFamily: "Inter_400Regular",
+      fontSize: 12,
+      color: "rgba(255,255,255,0.65)",
       marginBottom: 4,
     },
-    cardDesc: {
+    balAmount: {
+      fontFamily: "Inter_700Bold",
+      fontSize: 38,
+      color: "#ffffff",
+      lineHeight: 46,
+      marginBottom: 16,
+    },
+    balUnit: {
+      fontFamily: "Inter_600SemiBold",
+      fontSize: 20,
+      color: "rgba(255,255,255,0.85)",
+    },
+    actionRow: {
+      flexDirection: "row",
+      gap: 12,
+    },
+    actionBtn: {
+      flex: 1,
+      borderRadius: 12,
+      paddingVertical: 12,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    withdrawBtn: {
+      backgroundColor: "rgba(255,255,255,0.15)",
+      borderWidth: 1,
+      borderColor: "rgba(255,255,255,0.25)",
+    },
+    earnBtn: {
+      backgroundColor: colors.primary,
+    },
+    actionBtnText: {
+      fontFamily: "Inter_700Bold",
+      fontSize: 14,
+      color: "#ffffff",
+    },
+
+    body: { paddingBottom: bottomPad },
+
+    tickerCard: {
+      backgroundColor: colors.card,
+      marginHorizontal: 16,
+      marginTop: 14,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: 12,
+    },
+    tickerHeader: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+      marginBottom: 8,
+    },
+    liveDot: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: "#ef4444",
+    },
+    liveText: {
+      fontFamily: "Inter_700Bold",
+      fontSize: 11,
+      color: "#ef4444",
+      letterSpacing: 1,
+    },
+    tickerTitle: {
+      fontFamily: "Inter_600SemiBold",
+      fontSize: 13,
+      color: colors.foreground,
+    },
+    tickerRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+      marginBottom: 4,
+    },
+    tickerAmount: {
+      fontFamily: "Inter_700Bold",
+      fontSize: 14,
+      color: colors.primary,
+    },
+    tickerPhone: {
       fontFamily: "Inter_400Regular",
       fontSize: 13,
       color: colors.mutedForeground,
-      lineHeight: 18,
     },
-    metaRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 8,
-      marginTop: 6,
+    tickerBadge: {
+      backgroundColor: "#dcfce7",
+      borderRadius: 6,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
     },
-    metaText: {
+    tickerBadgeText: {
+      fontFamily: "Inter_600SemiBold",
+      fontSize: 10,
+      color: "#166534",
+    },
+    tickerSub: {
       fontFamily: "Inter_400Regular",
       fontSize: 12,
       color: colors.mutedForeground,
     },
-    badge: {
-      backgroundColor: colors.accent,
-      borderRadius: 20,
-      paddingHorizontal: 12,
-      paddingVertical: 6,
-      marginLeft: 12,
-      minWidth: 64,
+
+    sectionHeader: {
+      flexDirection: "row",
       alignItems: "center",
+      justifyContent: "space-between",
+      marginHorizontal: 16,
+      marginTop: 20,
+      marginBottom: 10,
     },
-    badgeDone: { backgroundColor: colors.muted },
-    badgeText: {
+    sectionLeft: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+    },
+    sectionTitle: {
       fontFamily: "Inter_700Bold",
-      fontSize: 13,
-      color: "#ffffff",
-    },
-    badgeTextDone: { color: colors.mutedForeground },
-    emptyBox: {
-      alignItems: "center",
-      justifyContent: "center",
-      paddingVertical: 60,
-    },
-    emptyText: {
-      fontFamily: "Inter_500Medium",
       fontSize: 15,
+      color: colors.foreground,
+    },
+    sectionBadge: {
+      backgroundColor: colors.muted,
+      borderRadius: 12,
+      paddingHorizontal: 8,
+      paddingVertical: 2,
+    },
+    sectionBadgeText: {
+      fontFamily: "Inter_500Medium",
+      fontSize: 11,
       color: colors.mutedForeground,
     },
-    listContent: {
-      paddingBottom: Platform.OS === "web" ? 34 + 84 : insets.bottom + 84,
+    sectionRight: {
+      fontFamily: "Inter_500Medium",
+      fontSize: 12,
+      color: colors.primary,
+    },
+
+    welcomeCard: {
+      marginHorizontal: 16,
+      backgroundColor: colors.card,
+      borderRadius: 14,
+      borderWidth: 1,
+      borderColor: colors.border,
+      overflow: "hidden",
+    },
+    welcomeCardInner: {
+      padding: 14,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 12,
+    },
+    welcomeIconCircle: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    welcomeInfo: { flex: 1 },
+    welcomeCardTitle: {
+      fontFamily: "Inter_600SemiBold",
+      fontSize: 14,
+      color: colors.foreground,
+      marginBottom: 2,
+    },
+    welcomeCardSub: {
+      fontFamily: "Inter_400Regular",
+      fontSize: 12,
+      color: colors.mutedForeground,
+    },
+    welcomeReward: {
+      fontFamily: "Inter_700Bold",
+      fontSize: 14,
+      color: colors.primary,
+    },
+    welcomeFooter: {
+      paddingHorizontal: 14,
+      paddingVertical: 8,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+    },
+    welcomeFooterText: {
+      fontFamily: "Inter_500Medium",
+      fontSize: 12,
+    },
+
+    surveyCard: {
+      marginHorizontal: 16,
+      marginBottom: 8,
+      backgroundColor: colors.card,
+      borderRadius: 14,
+      borderWidth: 1,
+      borderColor: colors.border,
+      overflow: "hidden",
+    },
+    surveyCardInner: {
+      padding: 14,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 12,
+    },
+    iconCircle: {
+      width: 42,
+      height: 42,
+      borderRadius: 21,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    surveyInfo: { flex: 1 },
+    surveyTitle: {
+      fontFamily: "Inter_600SemiBold",
+      fontSize: 14,
+      color: colors.foreground,
+      marginBottom: 2,
+      lineHeight: 19,
+    },
+    surveyCompany: {
+      fontFamily: "Inter_400Regular",
+      fontSize: 11,
+      color: colors.mutedForeground,
+      marginBottom: 5,
+    },
+    tagRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
+    },
+    categoryTag: {
+      borderRadius: 6,
+      paddingHorizontal: 7,
+      paddingVertical: 2,
+    },
+    categoryTagText: {
+      fontFamily: "Inter_500Medium",
+      fontSize: 10,
+    },
+    timeText: {
+      fontFamily: "Inter_400Regular",
+      fontSize: 11,
+      color: colors.mutedForeground,
+    },
+    surveyRight: {
+      alignItems: "flex-end",
+      gap: 6,
+    },
+    rewardText: {
+      fontFamily: "Inter_700Bold",
+      fontSize: 13,
+      color: colors.primary,
+    },
+    rewardDone: {
+      color: colors.mutedForeground,
+    },
+    surveyLockFooter: {
+      paddingHorizontal: 14,
+      paddingVertical: 7,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+      backgroundColor: "#fafafa",
+    },
+    surveyLockText: {
+      fontFamily: "Inter_400Regular",
+      fontSize: 11,
+      color: colors.mutedForeground,
+    },
+    surveyDoneFooter: {
+      paddingHorizontal: 14,
+      paddingVertical: 7,
+      borderTopWidth: 1,
+      borderTopColor: "#dcfce7",
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+      backgroundColor: "#f0fdf4",
+    },
+    surveyDoneText: {
+      fontFamily: "Inter_500Medium",
+      fontSize: 11,
+      color: "#16a34a",
+    },
+
+    countdownCard: {
+      marginHorizontal: 16,
+      marginTop: 16,
+      backgroundColor: colors.card,
+      borderRadius: 14,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: 14,
+    },
+    countdownRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginBottom: 10,
+    },
+    countdownLabel: {
+      fontFamily: "Inter_400Regular",
+      fontSize: 13,
+      color: colors.mutedForeground,
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    countdownValue: {
+      fontFamily: "Inter_700Bold",
+      fontSize: 18,
+      color: colors.foreground,
+      letterSpacing: 1,
+    },
+    progressTrack: {
+      height: 6,
+      backgroundColor: colors.muted,
+      borderRadius: 3,
+      overflow: "hidden",
+      marginBottom: 8,
+    },
+    progressFill: {
+      height: 6,
+      backgroundColor: colors.primary,
+      borderRadius: 3,
+    },
+    countdownSub: {
+      fontFamily: "Inter_400Regular",
+      fontSize: 11,
+      color: colors.mutedForeground,
+      textAlign: "center",
     },
   });
+
+  function SurveyCard({
+    survey,
+    locked,
+    done,
+    onPress,
+  }: {
+    survey: (typeof topicSurveys)[0];
+    locked: boolean;
+    done: boolean;
+    onPress?: () => void;
+  }) {
+    const meta = getSurveyMeta(survey.title);
+    const catColors = getCategoryColors(meta.category);
+    const mins = estimateMinutes(survey.questionCount, meta.minutesPerQ);
+
+    return (
+      <Pressable
+        style={({ pressed }) => [styles.surveyCard, { opacity: pressed && !locked && !done ? 0.75 : 1 }]}
+        onPress={!locked && !done ? onPress : undefined}
+      >
+        <View style={styles.surveyCardInner}>
+          <View style={[styles.iconCircle, { backgroundColor: `${meta.iconColor}18` }]}>
+            <Feather name={meta.icon as never} size={20} color={meta.iconColor} />
+          </View>
+          <View style={styles.surveyInfo}>
+            <Text style={styles.surveyTitle} numberOfLines={1}>{survey.title}</Text>
+            <Text style={styles.surveyCompany} numberOfLines={1}>{meta.company}</Text>
+            <View style={styles.tagRow}>
+              <View style={[styles.categoryTag, { backgroundColor: catColors.bg }]}>
+                <Text style={[styles.categoryTagText, { color: catColors.text }]}>{meta.category}</Text>
+              </View>
+              <Feather name="clock" size={10} color={colors.mutedForeground} />
+              <Text style={styles.timeText}>{mins}</Text>
+            </View>
+          </View>
+          <View style={styles.surveyRight}>
+            <Text style={[styles.rewardText, done && styles.rewardDone]}>
+              {done ? "Done" : `+${survey.reward} KSh`}
+            </Text>
+            {locked && !done && <Feather name="lock" size={14} color={colors.mutedForeground} />}
+            {done && <Feather name="check-circle" size={14} color="#16a34a" />}
+          </View>
+        </View>
+        {locked && !done && (
+          <View style={styles.surveyLockFooter}>
+            <Feather name="lock" size={11} color={colors.mutedForeground} />
+            <Text style={styles.surveyLockText}>Activate account to unlock</Text>
+          </View>
+        )}
+        {done && (
+          <View style={styles.surveyDoneFooter}>
+            <Feather name="check" size={11} color="#16a34a" />
+            <Text style={styles.surveyDoneText}>Completed</Text>
+          </View>
+        )}
+      </Pressable>
+    );
+  }
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.greeting}>
-          Good {new Date().getHours() < 12 ? "morning" : new Date().getHours() < 18 ? "afternoon" : "evening"},{" "}
-          {user?.name?.split(" ")[0] ?? "Explorer"}!
+          Good {getGreetingWord()},{" "}
+          <Text style={styles.greetingName}>{user?.name?.split(" ")[0] ?? "Explorer"}</Text>
+          {"  "}{getGreetingEmoji()}
         </Text>
-        <Text style={styles.name}>Your Wallet</Text>
-
-        <View style={styles.balanceCard}>
-          <View>
-            <Text style={styles.balanceLabel}>Available Balance</Text>
-            <View style={styles.balanceRow}>
-              <Text style={styles.balanceAmount}>{currentPoints}</Text>
-              <Text style={styles.balanceCurrency}> KSh</Text>
-            </View>
-            <Text style={styles.withdrawHint}>Min. KSh 100 to withdraw</Text>
-          </View>
+        <Text style={styles.subtitle}>Earn surely, withdraw instantly.</Text>
+        <Text style={styles.balLabel}>Available Balance</Text>
+        <Text style={styles.balAmount}>
+          {currentPoints.toLocaleString()}{" "}
+          <Text style={styles.balUnit}>KSh</Text>
+        </Text>
+        <View style={styles.actionRow}>
           <Pressable
+            style={({ pressed }) => [styles.actionBtn, styles.withdrawBtn, { opacity: pressed ? 0.8 : 1 }]}
             onPress={() => router.push("/(tabs)/wallet")}
-            style={styles.withdrawBtn}
           >
-            <Text style={styles.withdrawBtnText}>Withdraw</Text>
+            <Text style={styles.actionBtnText}>Withdraw</Text>
+          </Pressable>
+          <Pressable
+            style={({ pressed }) => [styles.actionBtn, styles.earnBtn, { opacity: pressed ? 0.8 : 1 }]}
+            onPress={() => {}}
+          >
+            <Text style={styles.actionBtnText}>Earn More</Text>
           </Pressable>
         </View>
-
-        <View style={styles.filterRow}>
-          {(["all", "available", "done"] as FilterTab[]).map((f) => (
-            <Pressable
-              key={f}
-              style={[styles.filterBtn, filter === f && styles.filterBtnActive]}
-              onPress={() => setFilter(f)}
-            >
-              <Text style={[styles.filterText, filter === f && styles.filterTextActive]}>
-                {f === "all" ? "All" : f === "available" ? "Available" : "Done"}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
       </View>
 
-      <View style={styles.body}>
-        {isLoading ? (
-          <View style={styles.emptyBox}>
-            <ActivityIndicator size="large" color={colors.primary} />
+      <ScrollView
+        style={{ flex: 1 }}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefetching}
+            onRefresh={() => { refetch(); refetchUser(); refetchCompletions(); getDailyCompletions().then(setDailyDoneIds); }}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+          />
+        }
+      >
+        <View style={styles.body}>
+
+          {/* LIVE TICKER */}
+          <View style={styles.tickerCard}>
+            <View style={styles.tickerHeader}>
+              <View style={styles.liveDot} />
+              <Text style={styles.liveText}>LIVE</Text>
+              <Text style={styles.tickerTitle}>Recent Withdrawals</Text>
+            </View>
+            <Animated.View style={{ opacity: tickerOpacity }}>
+              <View style={styles.tickerRow}>
+                <Text style={styles.tickerAmount}>KSh {ticker.amount}</Text>
+                <Feather name="arrow-right" size={12} color={colors.mutedForeground} />
+                <Text style={styles.tickerPhone}>{ticker.phone}</Text>
+                <Text style={styles.tickerPhone}>· {ticker.ago}</Text>
+                <View style={styles.tickerBadge}>
+                  <Text style={styles.tickerBadgeText}>Instant</Text>
+                </View>
+              </View>
+              <Text style={styles.tickerSub}>Survey bonus received!</Text>
+            </Animated.View>
           </View>
-        ) : (
-          <FlatList
-            data={filtered}
-            keyExtractor={(item) => String(item.id)}
-            scrollEnabled={filtered.length > 0}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.listContent}
-            refreshControl={
-              <RefreshControl
-                refreshing={isRefetching}
-                onRefresh={handleRefresh}
-                tintColor={colors.primary}
-                colors={[colors.primary]}
-              />
-            }
-            renderItem={({ item }) => {
-              const done = completedSet.has(item.id);
-              return (
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.card,
-                    done && styles.cardDone,
-                    { opacity: pressed && !done ? 0.75 : 1 },
-                  ]}
-                  onPress={done ? undefined : () => router.push(`/survey/${item.id}`)}
-                >
-                  <View style={styles.info}>
-                    <Text style={styles.cardTitle}>{item.title}</Text>
-                    {item.description ? (
-                      <Text style={styles.cardDesc} numberOfLines={2}>
-                        {item.description}
-                      </Text>
-                    ) : null}
-                    <View style={styles.metaRow}>
-                      <Text style={styles.metaText}>
-                        {item.questionCount} question{item.questionCount !== 1 ? "s" : ""}
-                      </Text>
-                      <Text style={styles.metaText}>•</Text>
-                      <Text style={styles.metaText}>
-                        {item.responseCount} response{item.responseCount !== 1 ? "s" : ""}
-                      </Text>
-                    </View>
-                  </View>
-                  <View style={[styles.badge, done && styles.badgeDone]}>
-                    <Text style={[styles.badgeText, done && styles.badgeTextDone]}>
-                      {done ? "Done" : `KSh ${item.reward}`}
-                    </Text>
-                  </View>
-                </Pressable>
-              );
-            }}
-            ListEmptyComponent={
-              <View style={styles.emptyBox}>
-                <Text style={styles.emptyText}>
-                  {filter === "done" ? "No completed surveys yet" : "No surveys available"}
-                </Text>
-                <Text style={{ fontFamily: "Inter_400Regular", fontSize: 13, color: colors.mutedForeground, marginTop: 4 }}>
-                  {filter === "done" ? "Complete a survey to earn KSh" : "Check back soon!"}
+
+          {/* WELCOME BONUS */}
+          <View style={styles.sectionHeader}>
+            <View style={styles.sectionLeft}>
+              <Text style={{ fontSize: 16 }}>🎁</Text>
+              <Text style={styles.sectionTitle}>Welcome Bonus</Text>
+            </View>
+            <Text style={styles.sectionRight}>One-time only</Text>
+          </View>
+
+          <View style={styles.welcomeCard}>
+            <View style={styles.welcomeCardInner}>
+              <View style={[styles.welcomeIconCircle, { backgroundColor: `${colors.primary}18` }]}>
+                <Feather name="gift" size={22} color={colors.primary} />
+              </View>
+              <View style={styles.welcomeInfo}>
+                <Text style={styles.welcomeCardTitle}>Welcome Survey</Text>
+                <Text style={styles.welcomeCardSub}>
+                  {welcomeDone ? "Completed — 1,000 KSh earned!" : "Answer 7 quick questions"}
                 </Text>
               </View>
-            }
-          />
-        )}
-      </View>
+              <Text style={[styles.welcomeReward, welcomeDone && { color: colors.mutedForeground }]}>
+                +1,000{"\n"}KSh
+              </Text>
+            </View>
+            {welcomeDone ? (
+              <View style={styles.surveyDoneFooter}>
+                <Feather name="check-circle" size={12} color="#16a34a" />
+                <Text style={styles.surveyDoneText}>Completed</Text>
+              </View>
+            ) : (
+              <Pressable
+                style={({ pressed }) => [styles.welcomeFooter, { opacity: pressed ? 0.75 : 1 }]}
+                onPress={() => welcomeSurvey && router.push(`/survey/${welcomeSurvey.id}?welcome=true`)}
+              >
+                <Feather name="play-circle" size={12} color={colors.primary} />
+                <Text style={[styles.welcomeFooterText, { color: colors.primary }]}>Start to unlock bonus</Text>
+              </Pressable>
+            )}
+          </View>
+
+          {/* TODAY'S SURVEYS */}
+          <View style={styles.sectionHeader}>
+            <View style={styles.sectionLeft}>
+              <Text style={{ fontSize: 16 }}>📊</Text>
+              <Text style={styles.sectionTitle}>Today's Surveys</Text>
+            </View>
+            <Text style={styles.sectionRight}>Tap to earn →</Text>
+          </View>
+
+          {isLoading ? (
+            <ActivityIndicator color={colors.primary} style={{ marginVertical: 20 }} />
+          ) : (
+            todaysSurveys.map((survey) => (
+              <SurveyCard
+                key={survey.id}
+                survey={survey}
+                locked={true}
+                done={completedSet.has(survey.id)}
+                onPress={() => router.push(`/survey/${survey.id}`)}
+              />
+            ))
+          )}
+
+          {/* COUNTDOWN TIMER */}
+          <View style={styles.countdownCard}>
+            <View style={styles.countdownRow}>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                <Feather name="refresh-cw" size={13} color={colors.mutedForeground} />
+                <Text style={{ fontFamily: "Inter_400Regular", fontSize: 13, color: colors.mutedForeground }}>
+                  Next survey refresh in
+                </Text>
+              </View>
+              <Text style={styles.countdownValue}>{countdown}</Text>
+            </View>
+            <View style={styles.progressTrack}>
+              <View style={[styles.progressFill, { width: `${dayPct * 100}%` }]} />
+            </View>
+            <Text style={styles.countdownSub}>
+              Resets daily at midnight UTC · Uses server time
+            </Text>
+          </View>
+
+          {/* BROWSE ALL TOPICS */}
+          <View style={styles.sectionHeader}>
+            <View style={styles.sectionLeft}>
+              <Text style={{ fontSize: 16 }}>📋</Text>
+              <Text style={styles.sectionTitle}>Browse All Topics</Text>
+            </View>
+            <View style={styles.sectionBadge}>
+              <Text style={styles.sectionBadgeText}>{browseAll.length} topics</Text>
+            </View>
+          </View>
+
+          {browseAll.map((survey) => {
+            const done = completedSet.has(survey.id);
+            const locked = !done && dailyLimitReached;
+            return (
+              <SurveyCard
+                key={survey.id}
+                survey={survey}
+                locked={locked}
+                done={done}
+                onPress={() => router.push(`/survey/${survey.id}`)}
+              />
+            );
+          })}
+        </View>
+      </ScrollView>
     </View>
   );
 }

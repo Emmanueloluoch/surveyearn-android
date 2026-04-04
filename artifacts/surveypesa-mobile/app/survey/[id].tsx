@@ -20,6 +20,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useAuth } from "@/context/AuthContext";
 import { useColors } from "@/hooks/useColors";
+import { addDailyCompletion } from "@/utils/dailyCompletions";
 
 export default function SurveyDetailScreen() {
   const colors = useColors();
@@ -66,6 +67,7 @@ export default function SurveyDetailScreen() {
       });
       setEarned(result.pointsEarned ?? 0);
       updatePoints(result.points);
+      await addDailyCompletion(surveyId);
       setDone(true);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (err: unknown) {
