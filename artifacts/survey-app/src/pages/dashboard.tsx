@@ -112,8 +112,8 @@ export default function Dashboard() {
     <Layout>
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Surveys</h1>
-          <p className="text-muted-foreground mt-1">Manage your forms and view responses.</p>
+          <h1 className="text-3xl font-bold tracking-tight">Available Surveys</h1>
+          <p className="text-muted-foreground mt-1">Complete surveys and earn points redeemable via M-Pesa.</p>
         </div>
         
         {user ? (

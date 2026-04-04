@@ -22,7 +22,7 @@ export function Layout({ children }: { children: ReactNode }) {
               <div className="bg-primary text-primary-foreground p-1.5 rounded-md">
                 <Layers className="h-5 w-5" />
               </div>
-              <span className="font-semibold text-lg tracking-tight">SurveyTool</span>
+              <span className="font-semibold text-lg tracking-tight">SurveyPesa KE</span>
             </Link>
           </div>
           <div className="flex items-center gap-4">
