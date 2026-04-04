@@ -50,6 +50,7 @@ export const GetUserResponse = zod.object({
   name: zod.string(),
   phone: zod.string(),
   points: zod.number(),
+  isActivated: zod.boolean(),
   createdAt: zod.string(),
 });
 
@@ -64,6 +65,23 @@ export const GetUserCompletionsResponseItem = zod.number();
 export const GetUserCompletionsResponse = zod.array(
   GetUserCompletionsResponseItem,
 );
+
+/**
+ * @summary Activate account via M-Pesa payment verification
+ */
+export const ActivateUserParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const ActivateUserBody = zod.object({
+  mpesaCode: zod.string(),
+});
+
+export const ActivateUserResponse = zod.object({
+  isActivated: zod.boolean(),
+  points: zod.number(),
+  message: zod.string(),
+});
 
 /**
  * @summary Withdraw points via M-Pesa (simulated)

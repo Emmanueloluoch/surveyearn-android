@@ -17,6 +17,8 @@ import type {
 } from "@tanstack/react-query";
 
 import type {
+  ActivateBody,
+  ActivateResponse,
   AuthResponse,
   CompleteSurveyBody,
   CompleteSurveyResponse,
@@ -457,6 +459,93 @@ export function useGetUserCompletions<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * @summary Activate account via M-Pesa payment verification
+ */
+export const getActivateUserUrl = (id: number) => {
+  return `/api/users/${id}/activate`;
+};
+
+export const activateUser = async (
+  id: number,
+  activateBody: ActivateBody,
+  options?: RequestInit,
+): Promise<ActivateResponse> => {
+  return customFetch<ActivateResponse>(getActivateUserUrl(id), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(activateBody),
+  });
+};
+
+export const getActivateUserMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof activateUser>>,
+    TError,
+    { id: number; data: BodyType<ActivateBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof activateUser>>,
+  TError,
+  { id: number; data: BodyType<ActivateBody> },
+  TContext
+> => {
+  const mutationKey = ["activateUser"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof activateUser>>,
+    { id: number; data: BodyType<ActivateBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return activateUser(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ActivateUserMutationResult = NonNullable<
+  Awaited<ReturnType<typeof activateUser>>
+>;
+export type ActivateUserMutationBody = BodyType<ActivateBody>;
+export type ActivateUserMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Activate account via M-Pesa payment verification
+ */
+export const useActivateUser = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof activateUser>>,
+    TError,
+    { id: number; data: BodyType<ActivateBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof activateUser>>,
+  TError,
+  { id: number; data: BodyType<ActivateBody> },
+  TContext
+> => {
+  return useMutation(getActivateUserMutationOptions(options));
+};
 
 /**
  * @summary Withdraw points via M-Pesa (simulated)

@@ -6,11 +6,8 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface User {
-  id: number;
-  name: string;
-  phone: string;
-  points: number;
+export interface ActivateResponse {
   isActivated: boolean;
-  createdAt: string;
+  points: number;
+  message: string;
 }

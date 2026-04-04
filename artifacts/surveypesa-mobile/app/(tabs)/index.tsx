@@ -6,6 +6,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Animated,
+  Modal,
   Platform,
   Pressable,
   RefreshControl,
@@ -81,6 +82,7 @@ export default function HomeScreen() {
   const [dayPct, setDayPct] = useState(getDayProgressPct);
   const [tickerIdx, setTickerIdx] = useState(0);
   const [dailyDoneIds, setDailyDoneIds] = useState<number[]>([]);
+  const [showActivationModal, setShowActivationModal] = useState(false);
   const tickerOpacity = useRef(new Animated.Value(1)).current;
 
   const { data: surveys, isLoading, refetch, isRefetching } = useListSurveys();
@@ -516,11 +518,13 @@ export default function HomeScreen() {
     locked,
     done,
     onPress,
+    onLocked,
   }: {
     survey: (typeof topicSurveys)[0];
     locked: boolean;
     done: boolean;
     onPress?: () => void;
+    onLocked?: () => void;
   }) {
     const meta = getSurveyMeta(survey.title);
     const catColors = getCategoryColors(meta.category);
@@ -528,8 +532,8 @@ export default function HomeScreen() {
 
     return (
       <Pressable
-        style={({ pressed }) => [styles.surveyCard, { opacity: pressed && !locked && !done ? 0.75 : 1 }]}
-        onPress={!locked && !done ? onPress : undefined}
+        style={({ pressed }) => [styles.surveyCard, { opacity: pressed ? 0.85 : 1 }]}
+        onPress={done ? undefined : locked ? onLocked : onPress}
       >
         <View style={styles.surveyCardInner}>
           <View style={[styles.iconCircle, { backgroundColor: `${meta.iconColor}18` }]}>
@@ -732,9 +736,10 @@ export default function HomeScreen() {
               <SurveyCard
                 key={survey.id}
                 survey={survey}
-                locked={true}
+                locked={!user?.isActivated}
                 done={completedSet.has(survey.id)}
                 onPress={() => router.push(`/survey/${survey.id}`)}
+                onLocked={() => setShowActivationModal(true)}
               />
             ))
           )}
@@ -771,7 +776,7 @@ export default function HomeScreen() {
 
           {browseAll.map((survey) => {
             const done = completedSet.has(survey.id);
-            const locked = !done && dailyLimitReached;
+            const locked = !done && (!user?.isActivated || dailyLimitReached);
             return (
               <SurveyCard
                 key={survey.id}
@@ -779,11 +784,75 @@ export default function HomeScreen() {
                 locked={locked}
                 done={done}
                 onPress={() => router.push(`/survey/${survey.id}`)}
+                onLocked={() => setShowActivationModal(true)}
               />
             );
           })}
         </View>
       </ScrollView>
+
+      {/* ACTIVATION MODAL */}
+      <Modal
+        visible={showActivationModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowActivationModal(false)}
+      >
+        <Pressable
+          style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", alignItems: "center", padding: 24 }}
+          onPress={() => setShowActivationModal(false)}
+        >
+          <Pressable
+            style={{
+              backgroundColor: colors.card,
+              borderRadius: 20,
+              padding: 24,
+              width: "100%",
+              maxWidth: 360,
+              alignItems: "center",
+              gap: 8,
+            }}
+            onPress={() => {}}
+          >
+            <View style={{
+              width: 60, height: 60, borderRadius: 30,
+              backgroundColor: `${colors.primary}18`,
+              alignItems: "center", justifyContent: "center",
+              marginBottom: 4,
+            }}>
+              <Text style={{ fontSize: 28 }}>🔒</Text>
+            </View>
+            <Text style={{ fontFamily: "Inter_700Bold", fontSize: 18, color: colors.foreground, textAlign: "center" }}>
+              Account Activation Required
+            </Text>
+            <Text style={{ fontFamily: "Inter_400Regular", fontSize: 14, color: colors.mutedForeground, textAlign: "center", lineHeight: 20 }}>
+              Activate your account with <Text style={{ fontFamily: "Inter_700Bold", color: colors.foreground }}>KSh 150</Text> to unlock all surveys and start earning real money. The activation fee will be added to your balance!
+            </Text>
+            <View style={{ flexDirection: "row", gap: 12, marginTop: 8, width: "100%" }}>
+              <Pressable
+                style={({ pressed }) => [{
+                  flex: 1, paddingVertical: 13, borderRadius: 12,
+                  backgroundColor: colors.muted,
+                  alignItems: "center", opacity: pressed ? 0.7 : 1,
+                }]}
+                onPress={() => setShowActivationModal(false)}
+              >
+                <Text style={{ fontFamily: "Inter_600SemiBold", fontSize: 14, color: colors.mutedForeground }}>Later</Text>
+              </Pressable>
+              <Pressable
+                style={({ pressed }) => [{
+                  flex: 1.5, paddingVertical: 13, borderRadius: 12,
+                  backgroundColor: colors.primary,
+                  alignItems: "center", opacity: pressed ? 0.85 : 1,
+                }]}
+                onPress={() => { setShowActivationModal(false); router.push("/activate"); }}
+              >
+                <Text style={{ fontFamily: "Inter_700Bold", fontSize: 14, color: "#ffffff" }}>Activate Now</Text>
+              </Pressable>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </View>
   );
 }

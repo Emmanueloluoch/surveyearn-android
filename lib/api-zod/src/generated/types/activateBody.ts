@@ -6,11 +6,6 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface User {
-  id: number;
-  name: string;
-  phone: string;
-  points: number;
-  isActivated: boolean;
-  createdAt: string;
+export interface ActivateBody {
+  mpesaCode: string;
 }

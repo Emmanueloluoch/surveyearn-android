@@ -1,8 +1,10 @@
 import { Router, type IRouter } from "express";
 import { eq, sql } from "drizzle-orm";
 import { db, usersTable, completionsTable, withdrawalsTable } from "@workspace/db";
-import { GetUserParams, GetUserCompletionsParams, WithdrawPointsParams } from "@workspace/api-zod";
+import { GetUserParams, GetUserCompletionsParams, WithdrawPointsParams, ActivateUserParams, ActivateUserBody } from "@workspace/api-zod";
 import { sendMpesaPayout } from "../lib/mpesa";
+
+const ACTIVATION_FEE_KSH = 150;
 
 const MINIMUM_WITHDRAWAL_POINTS = 100;
 
@@ -30,6 +32,7 @@ router.get("/users/:id", async (req, res): Promise<void> => {
     name: user.name,
     phone: user.phone,
     points: user.points,
+    isActivated: user.isActivated,
     createdAt: user.createdAt,
   });
 });
@@ -47,6 +50,51 @@ router.get("/users/:id/completions", async (req, res): Promise<void> => {
     .where(eq(completionsTable.userId, params.data.id));
 
   res.json(completions.map((c) => c.surveyId));
+});
+
+router.post("/users/:id/activate", async (req, res): Promise<void> => {
+  const params = ActivateUserParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  const body = ActivateUserBody.safeParse(req.body);
+  if (!body.success) {
+    res.status(400).json({ error: body.error.message });
+    return;
+  }
+
+  const [user] = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.id, params.data.id));
+
+  if (!user) {
+    res.status(404).json({ error: "User not found" });
+    return;
+  }
+
+  if (user.isActivated) {
+    res.status(400).json({ error: "Account is already activated" });
+    return;
+  }
+
+  const [updatedUser] = await db
+    .update(usersTable)
+    .set({
+      isActivated: true,
+      activationMpesaCode: body.data.mpesaCode,
+      points: sql`${usersTable.points} + ${ACTIVATION_FEE_KSH}`,
+    })
+    .where(eq(usersTable.id, user.id))
+    .returning();
+
+  res.json({
+    isActivated: true,
+    points: updatedUser.points,
+    message: `Account activated! KSh ${ACTIVATION_FEE_KSH} added to your balance.`,
+  });
 });
 
 router.post("/users/:id/withdraw", async (req, res): Promise<void> => {

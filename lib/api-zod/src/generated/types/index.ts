@@ -6,6 +6,8 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from "./activateBody";
+export * from "./activateResponse";
 export * from "./authResponse";
 export * from "./completeSurveyBody";
 export * from "./completeSurveyResponse";

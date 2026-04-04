@@ -9,6 +9,7 @@ export interface AuthUser {
   name: string;
   phone: string;
   points: number;
+  isActivated: boolean;
 }
 
 interface AuthContextValue {
@@ -17,6 +18,7 @@ interface AuthContextValue {
   login: (user: AuthUser) => Promise<void>;
   logout: () => Promise<void>;
   updatePoints: (points: number) => void;
+  setActivated: (points: number) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -57,8 +59,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  const setActivated = (points: number) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+      const updated = { ...prev, isActivated: true, points };
+      AsyncStorage.setItem(AUTH_KEY, JSON.stringify(updated));
+      return updated;
+    });
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout, updatePoints }}>
+    <AuthContext.Provider value={{ user, isLoading, login, logout, updatePoints, setActivated }}>
       {children}
     </AuthContext.Provider>
   );

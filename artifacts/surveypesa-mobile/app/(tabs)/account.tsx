@@ -210,12 +210,20 @@ export default function AccountScreen() {
         <Text style={styles.displayName}>{user?.name ?? "User"}</Text>
         <Text style={styles.phoneText}>{user?.phone ?? "—"}</Text>
         <View style={styles.badgeRow}>
-          <View style={styles.badgePending}>
-            <Text style={styles.badgePendingText}>Activation Pending</Text>
-          </View>
-          <View style={styles.badgeMember}>
-            <Text style={styles.badgeMemberText}>Free Member</Text>
-          </View>
+          {user?.isActivated ? (
+            <View style={[styles.badgePending, { backgroundColor: "#16a34a" }]}>
+              <Text style={styles.badgePendingText}>✓ Active Member</Text>
+            </View>
+          ) : (
+            <>
+              <View style={styles.badgePending}>
+                <Text style={styles.badgePendingText}>Activation Pending</Text>
+              </View>
+              <View style={styles.badgeMember}>
+                <Text style={styles.badgeMemberText}>Free Member</Text>
+              </View>
+            </>
+          )}
         </View>
         <View style={styles.statsRow}>
           <View style={styles.statBox}>
@@ -246,6 +254,29 @@ export default function AccountScreen() {
               <Text style={styles.menuText}>Member since {joinDate}</Text>
             </View>
           </View>
+
+          {!user?.isActivated && (
+            <>
+              <Text style={styles.sectionLabel}>Activation</Text>
+              <View style={styles.menuCard}>
+                <Pressable
+                  style={[styles.menuItem, styles.menuItemLast]}
+                  onPress={() => router.push("/activate")}
+                >
+                  <View style={styles.menuIcon}>
+                    <Feather name="unlock" size={18} color="#ff6b35" />
+                  </View>
+                  <View style={{ flex: 1, marginLeft: 12 }}>
+                    <Text style={[styles.menuText, { color: "#ff6b35", marginLeft: 0 }]}>Activate Account</Text>
+                    <Text style={{ fontFamily: "Inter_400Regular", fontSize: 12, color: colors.mutedForeground }}>
+                      Pay KSh 150 via M-Pesa · Unlock all surveys
+                    </Text>
+                  </View>
+                  <Feather name="chevron-right" size={16} color="#ff6b35" />
+                </Pressable>
+              </View>
+            </>
+          )}
 
           <Text style={styles.sectionLabel}>About</Text>
           <View style={styles.menuCard}>

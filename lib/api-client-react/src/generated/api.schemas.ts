@@ -18,6 +18,7 @@ export interface User {
   name: string;
   phone: string;
   points: number;
+  isActivated: boolean;
   createdAt: string;
 }
 
@@ -37,6 +38,16 @@ export interface AuthResponse {
   points: number;
   /** @nullable */
   welcomeSurveyId: number | null;
+}
+
+export interface ActivateBody {
+  mpesaCode: string;
+}
+
+export interface ActivateResponse {
+  isActivated: boolean;
+  points: number;
+  message: string;
 }
 
 export interface WithdrawalResponse {

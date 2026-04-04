@@ -130,6 +130,43 @@ paths:
                 items:
                   type: integer
 
+  /users/{id}/activate:
+    post:
+      operationId: activateUser
+      tags: [users]
+      summary: Activate account via M-Pesa payment verification
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ActivateBody"
+      responses:
+        "200":
+          description: Account activated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActivateResponse"
+        "400":
+          description: Already activated or invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /users/{id}/withdraw:
     post:
       operationId: withdrawPoints
@@ -509,6 +546,8 @@ components:
           type: string
         points:
           type: integer
+        isActivated:
+          type: boolean
         createdAt:
           type: string
       required:
@@ -516,6 +555,7 @@ components:
         - name
         - phone
         - points
+        - isActivated
         - createdAt
 
     SignupBody:
@@ -556,6 +596,28 @@ components:
         - phone
         - points
         - welcomeSurveyId
+
+    ActivateBody:
+      type: object
+      properties:
+        mpesaCode:
+          type: string
+      required:
+        - mpesaCode
+
+    ActivateResponse:
+      type: object
+      properties:
+        isActivated:
+          type: boolean
+        points:
+          type: integer
+        message:
+          type: string
+      required:
+        - isActivated
+        - points
+        - message
 
     WithdrawalResponse:
       type: object
