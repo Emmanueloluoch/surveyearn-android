@@ -217,15 +217,18 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.greeting}>Welcome back,</Text>
-        <Text style={styles.name}>{user?.name ?? "Explorer"}</Text>
+        <Text style={styles.greeting}>
+          Good {new Date().getHours() < 12 ? "morning" : new Date().getHours() < 18 ? "afternoon" : "evening"},{" "}
+          {user?.name?.split(" ")[0] ?? "Explorer"}!
+        </Text>
+        <Text style={styles.name}>Your Wallet</Text>
 
         <View style={styles.balanceCard}>
           <View>
-            <Text style={styles.balanceLabel}>Your Balance</Text>
+            <Text style={styles.balanceLabel}>Available Balance</Text>
             <View style={styles.balanceRow}>
-              <Text style={styles.balanceCurrency}>KSh</Text>
               <Text style={styles.balanceAmount}>{currentPoints}</Text>
+              <Text style={styles.balanceCurrency}> KSh</Text>
             </View>
             <Text style={styles.withdrawHint}>Min. KSh 100 to withdraw</Text>
           </View>

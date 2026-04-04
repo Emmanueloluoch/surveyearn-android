@@ -86,6 +86,34 @@ export default function AccountScreen() {
       fontFamily: "Inter_400Regular",
       fontSize: 14,
       color: "rgba(255,255,255,0.65)",
+      marginBottom: 12,
+    },
+    badgeRow: {
+      flexDirection: "row",
+      gap: 8,
+      marginTop: 4,
+    },
+    badgePending: {
+      backgroundColor: "#ff6b35",
+      borderRadius: 20,
+      paddingHorizontal: 12,
+      paddingVertical: 4,
+    },
+    badgePendingText: {
+      fontFamily: "Inter_600SemiBold",
+      fontSize: 12,
+      color: "#ffffff",
+    },
+    badgeMember: {
+      backgroundColor: "rgba(255,255,255,0.15)",
+      borderRadius: 20,
+      paddingHorizontal: 12,
+      paddingVertical: 4,
+    },
+    badgeMemberText: {
+      fontFamily: "Inter_500Medium",
+      fontSize: 12,
+      color: "rgba(255,255,255,0.85)",
     },
     statsRow: {
       flexDirection: "row",
@@ -181,6 +209,14 @@ export default function AccountScreen() {
         </View>
         <Text style={styles.displayName}>{user?.name ?? "User"}</Text>
         <Text style={styles.phoneText}>{user?.phone ?? "—"}</Text>
+        <View style={styles.badgeRow}>
+          <View style={styles.badgePending}>
+            <Text style={styles.badgePendingText}>Activation Pending</Text>
+          </View>
+          <View style={styles.badgeMember}>
+            <Text style={styles.badgeMemberText}>Free Member</Text>
+          </View>
+        </View>
         <View style={styles.statsRow}>
           <View style={styles.statBox}>
             <Text style={styles.statValue}>{currentPoints}</Text>
