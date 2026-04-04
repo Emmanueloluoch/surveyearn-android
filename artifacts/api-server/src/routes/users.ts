@@ -7,7 +7,7 @@ import { sendMpesaPayout } from "../lib/mpesa";
 const ACTIVATION_FEE_KSH = 150;
 const VIP_FEE_KSH = 500;
 
-const MINIMUM_WITHDRAWAL_POINTS = 100;
+const MINIMUM_WITHDRAWAL_POINTS = 3000;
 
 const router: IRouter = Router();
 

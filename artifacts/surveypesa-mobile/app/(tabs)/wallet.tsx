@@ -16,7 +16,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/context/AuthContext";
 import { useColors } from "@/hooks/useColors";
 
-const MINIMUM_POINTS = 100;
+const MINIMUM_POINTS = 3000;
 
 export default function WalletScreen() {
   const colors = useColors();
@@ -203,7 +203,7 @@ export default function WalletScreen() {
             <Text style={styles.currency}>KSh</Text>
             <Text style={styles.amount}>{currentPoints}</Text>
           </View>
-          <Text style={styles.minNote}>Minimum KSh 100 to withdraw via M-Pesa</Text>
+          <Text style={styles.minNote}>Minimum KSh 3,000 to withdraw via M-Pesa</Text>
         </View>
       </View>
 
@@ -262,7 +262,7 @@ export default function WalletScreen() {
           <View style={styles.howItWorks}>
             <Text style={styles.howTitle}>How it works</Text>
             <Text style={styles.howStep}>1. Complete surveys to earn KSh rewards</Text>
-            <Text style={styles.howStep}>2. Accumulate at least KSh 100</Text>
+            <Text style={styles.howStep}>2. Accumulate at least KSh 3,000</Text>
             <Text style={styles.howStep}>3. Tap Withdraw — funds sent to your M-Pesa</Text>
             <Text style={styles.howStep}>4. Money arrives within minutes</Text>
           </View>
