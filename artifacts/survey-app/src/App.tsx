@@ -5,12 +5,15 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/auth-context";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
+import Surveys from "@/pages/surveys";
+import Wallet from "@/pages/wallet";
+import Account from "@/pages/account";
+import Refer from "@/pages/refer";
 import SurveyEditor from "@/pages/survey-editor";
 import SurveyTake from "@/pages/survey-take";
 import SurveyResults from "@/pages/survey-results";
 import Login from "@/pages/login";
 import Signup from "@/pages/signup";
-import Profile from "@/pages/profile";
 
 const queryClient = new QueryClient();
 
@@ -18,9 +21,12 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Dashboard} />
+      <Route path="/surveys" component={Surveys} />
+      <Route path="/wallet" component={Wallet} />
+      <Route path="/account" component={Account} />
+      <Route path="/refer" component={Refer} />
       <Route path="/login" component={Login} />
       <Route path="/signup" component={Signup} />
-      <Route path="/profile" component={Profile} />
       <Route path="/surveys/new" component={SurveyEditor} />
       <Route path="/surveys/:id/edit" component={SurveyEditor} />
       <Route path="/surveys/:id/results" component={SurveyResults} />

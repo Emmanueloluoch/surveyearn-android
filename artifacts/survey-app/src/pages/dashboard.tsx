@@ -1,322 +1,222 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
-import { Plus, BarChart2, Edit3, Trash2, ExternalLink, Settings, CheckCircle2, Coins } from "lucide-react";
-import { 
-  useListSurveys, 
-  useCreateSurvey, 
-  useDeleteSurvey, 
-  useUpdateSurvey,
+import { ExternalLink, Clock, Gift, ChevronRight, TrendingUp } from "lucide-react";
+import {
+  useListSurveys,
+  useCompleteSurvey,
   getListSurveysQueryKey,
   useGetUserCompletions,
-  useCompleteSurvey,
   getGetUserQueryKey,
-  getGetUserCompletionsQueryKey
+  getGetUserCompletionsQueryKey,
 } from "@workspace/api-client-react";
 import { useAuth } from "@/contexts/auth-context";
 import { Layout } from "@/components/layout";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Dashboard() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { user, updatePoints } = useAuth();
-  const [isCreating, setIsCreating] = useState(false);
   const [claimingSurveyId, setClaimingSurveyId] = useState<number | null>(null);
-  
-  const { data: surveys, isLoading } = useListSurveys({ 
-    query: { queryKey: getListSurveysQueryKey() } 
+
+  const { data: surveys, isLoading } = useListSurveys({
+    query: { queryKey: getListSurveysQueryKey() },
   });
-  
+
   const { data: completions } = useGetUserCompletions(user?.userId || 0, {
-    query: { enabled: !!user, queryKey: getGetUserCompletionsQueryKey(user?.userId || 0) }
+    query: {
+      enabled: !!user,
+      queryKey: getGetUserCompletionsQueryKey(user?.userId || 0),
+    },
   });
 
   const completeSurveyMutation = useCompleteSurvey({
     mutation: {
-      onSuccess: (data, variables) => {
+      onSuccess: (data) => {
         updatePoints(user!.points + data.pointsEarned);
         queryClient.invalidateQueries({ queryKey: getGetUserCompletionsQueryKey(user!.userId) });
         queryClient.invalidateQueries({ queryKey: getGetUserQueryKey(user!.userId) });
-        toast({ title: "Reward Claimed!", description: `You earned ${data.pointsEarned} points.` });
+        toast({ title: `+${data.pointsEarned} KSh earned!`, description: "Reward added to your balance." });
         setClaimingSurveyId(null);
       },
-      onError: (error) => {
+      onError: () => {
         toast({ title: "Failed to claim reward", variant: "destructive" });
         setClaimingSurveyId(null);
-      }
-    }
-  });
-
-  const createSurvey = useCreateSurvey({
-    mutation: {
-      onSuccess: (newSurvey) => {
-        queryClient.invalidateQueries({ queryKey: getListSurveysQueryKey() });
-        setLocation(`/surveys/${newSurvey.id}/edit`);
-        toast({ title: "Survey created" });
       },
-      onError: () => {
-        toast({ title: "Failed to create survey", variant: "destructive" });
-        setIsCreating(false);
-      }
-    }
+    },
   });
-
-  const updateSurvey = useUpdateSurvey({
-    mutation: {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: getListSurveysQueryKey() });
-        toast({ title: "Survey updated" });
-      },
-      onError: () => {
-        toast({ title: "Failed to update survey", variant: "destructive" });
-      }
-    }
-  });
-
-  const deleteSurvey = useDeleteSurvey({
-    mutation: {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: getListSurveysQueryKey() });
-        toast({ title: "Survey deleted" });
-      },
-      onError: () => {
-        toast({ title: "Failed to delete survey", variant: "destructive" });
-      }
-    }
-  });
-
-  const handleCreate = () => {
-    setIsCreating(true);
-    createSurvey.mutate({ data: { title: "Untitled Survey", description: "", reward: 0, externalUrl: "" } });
-  };
-
-  const togglePublish = (id: number, currentStatus: boolean) => {
-    updateSurvey.mutate({ id, data: { isPublished: !currentStatus } });
-  };
 
   const handleClaimReward = (surveyId: number) => {
-    if (!user) return;
+    if (!user) { setLocation("/login"); return; }
     setClaimingSurveyId(surveyId);
     completeSurveyMutation.mutate({ id: surveyId, data: { userId: user.userId } });
   };
 
+  const published = surveys?.filter((s) => s.isPublished) ?? [];
+
   return (
     <Layout>
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Available Surveys</h1>
-          <p className="text-muted-foreground mt-1">Complete surveys and earn points redeemable via M-Pesa.</p>
+      {/* ── Balance hero ── */}
+      <div style={{ background: "#004d00" }} className="px-4 pb-5 pt-2">
+        <p className="text-xs mb-1" style={{ color: "rgba(255,255,255,0.6)" }}>Total Balance</p>
+        <p className="text-4xl font-extrabold text-white mb-3">
+          {(user?.points ?? 0).toLocaleString()} KSh
+        </p>
+        <div className="flex gap-2">
+          <Link href="/wallet" className="flex-1">
+            <button
+              className="w-full py-2 rounded-xl text-sm font-bold"
+              style={{ background: "rgba(255,255,255,0.15)", color: "#fff" }}
+            >
+              Withdraw
+            </button>
+          </Link>
+          <Link href="/surveys" className="flex-1">
+            <button
+              className="w-full py-2 rounded-xl text-sm font-bold"
+              style={{ background: "#00b33c", color: "#fff" }}
+            >
+              Earn More
+            </button>
+          </Link>
         </div>
-        
-        {user ? (
-          <Button onClick={handleCreate} disabled={isCreating} className="w-full md:w-auto shadow-sm">
-            {isCreating ? (
-              <span className="flex items-center gap-2">
-                <span className="h-4 w-4 rounded-full border-2 border-background border-t-transparent animate-spin" />
-                Creating...
-              </span>
-            ) : (
-              <span className="flex items-center gap-2">
-                <Plus className="h-4 w-4" />
-                Create Survey
-              </span>
-            )}
-          </Button>
-        ) : (
-          <div className="flex items-center gap-2 w-full md:w-auto">
-            <Link href="/login" className="flex-1">
-              <Button variant="outline" className="w-full">Login</Button>
-            </Link>
-            <Link href="/signup" className="flex-1">
-              <Button className="w-full">Sign Up to Earn</Button>
+      </div>
+
+      <div className="px-4 pt-4 space-y-5">
+        {/* ── Welcome bonus ── */}
+        {!user && (
+          <div
+            className="rounded-2xl p-4 flex items-center gap-3"
+            style={{ background: "#fff", border: "1.5px solid #b3ffb3" }}
+          >
+            <div className="h-10 w-10 rounded-full flex items-center justify-center shrink-0"
+              style={{ background: "#e5f7e0" }}>
+              <Gift className="h-5 w-5" style={{ color: "#00b33c" }} />
+            </div>
+            <div className="flex-1">
+              <p className="font-bold text-sm" style={{ color: "#004d00" }}>Welcome Bonus</p>
+              <p className="text-xs" style={{ color: "#666" }}>Sign up now and get a bonus on your first survey!</p>
+            </div>
+            <Link href="/signup">
+              <button className="text-xs font-bold px-3 py-1.5 rounded-full text-white" style={{ background: "#00b33c" }}>
+                Join
+              </button>
             </Link>
           </div>
         )}
-      </div>
 
-      {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3].map((i) => (
-            <Card key={i} className="flex flex-col">
-              <CardHeader>
-                <Skeleton className="h-6 w-3/4 mb-2" />
-                <Skeleton className="h-4 w-1/2" />
-              </CardHeader>
-              <CardContent className="flex-1">
-                <Skeleton className="h-4 w-full mb-2" />
-                <Skeleton className="h-4 w-5/6" />
-              </CardContent>
-              <CardFooter className="flex justify-between">
-                <Skeleton className="h-8 w-20" />
-                <Skeleton className="h-8 w-8" />
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
-      ) : !surveys?.length ? (
-        <div className="flex flex-col items-center justify-center p-12 text-center border rounded-xl bg-card/50 shadow-sm border-dashed">
-          <div className="bg-primary/10 p-4 rounded-full mb-4">
-            <BarChart2 className="h-8 w-8 text-primary" />
+        {/* ── Today's Surveys ── */}
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <p className="font-bold text-base" style={{ color: "#004d00" }}>Today's Surveys</p>
+            <Link href="/surveys">
+              <span className="text-xs font-semibold flex items-center gap-0.5" style={{ color: "#00b33c" }}>
+                View all <ChevronRight className="h-3.5 w-3.5" />
+              </span>
+            </Link>
           </div>
-          <h2 className="text-xl font-semibold mb-2">No surveys yet</h2>
-          <p className="text-muted-foreground mb-6 max-w-sm">Create your first survey to start collecting responses from your audience.</p>
-          {user && (
-            <Button onClick={handleCreate} disabled={isCreating}>
-              <Plus className="h-4 w-4 mr-2" />
-              Create your first survey
-            </Button>
+
+          {isLoading ? (
+            <div className="space-y-3">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="rounded-2xl h-20 animate-pulse" style={{ background: "#d4f5d4" }} />
+              ))}
+            </div>
+          ) : published.length === 0 ? (
+            <div className="rounded-2xl p-6 text-center" style={{ background: "#fff", border: "1.5px dashed #b3ffb3" }}>
+              <TrendingUp className="h-8 w-8 mx-auto mb-2" style={{ color: "#00b33c" }} />
+              <p className="font-semibold text-sm" style={{ color: "#004d00" }}>No surveys yet</p>
+              <p className="text-xs mt-1" style={{ color: "#666" }}>Check back soon for new earning opportunities.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {published.map((survey) => {
+                const isCompleted = completions?.includes(survey.id);
+                return (
+                  <div
+                    key={survey.id}
+                    className="rounded-2xl p-4 flex items-center gap-3"
+                    style={{ background: "#fff", border: "1.5px solid #e0f5e0" }}
+                  >
+                    <div
+                      className="h-11 w-11 rounded-xl flex items-center justify-center shrink-0 text-lg font-bold"
+                      style={{ background: "#e5f7e0", color: "#004d00" }}
+                    >
+                      {survey.title.charAt(0)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold leading-tight truncate" style={{ color: "#004d00" }}>
+                        {survey.title}
+                      </p>
+                      {survey.description && (
+                        <p className="text-xs mt-0.5 truncate" style={{ color: "#666" }}>
+                          {survey.description}
+                        </p>
+                      )}
+                      <div className="flex items-center gap-2 mt-1">
+                        {!survey.externalUrl && (
+                          <span className="flex items-center gap-1 text-xs" style={{ color: "#888" }}>
+                            <Clock className="h-3 w-3" />
+                            {survey.questionCount} questions
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-end gap-2 shrink-0">
+                      {survey.reward > 0 && (
+                        <span
+                          className="text-xs font-extrabold px-2 py-0.5 rounded-full"
+                          style={{ background: "#ff6b35", color: "#fff" }}
+                        >
+                          +{survey.reward} KSh
+                        </span>
+                      )}
+                      {isCompleted ? (
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full"
+                          style={{ background: "#e5f7e0", color: "#00b33c" }}>
+                          Claimed
+                        </span>
+                      ) : survey.externalUrl ? (
+                        <div className="flex gap-1">
+                          <button
+                            className="text-xs font-bold px-2 py-1 rounded-lg"
+                            style={{ background: "#e5f7e0", color: "#004d00" }}
+                            onClick={() => window.open(survey.externalUrl!, "_blank")}
+                          >
+                            <ExternalLink className="h-3 w-3 inline mr-0.5" />
+                            Open
+                          </button>
+                          {survey.reward > 0 && user && (
+                            <button
+                              className="text-xs font-bold px-2 py-1 rounded-lg text-white"
+                              style={{ background: "#00b33c" }}
+                              disabled={claimingSurveyId === survey.id}
+                              onClick={() => handleClaimReward(survey.id)}
+                            >
+                              {claimingSurveyId === survey.id ? "…" : "Claim"}
+                            </button>
+                          )}
+                        </div>
+                      ) : (
+                        <Link href={`/surveys/${survey.id}`}>
+                          <button
+                            className="text-xs font-bold px-3 py-1 rounded-lg text-white"
+                            style={{ background: "#00b33c" }}
+                          >
+                            Start
+                          </button>
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           )}
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {surveys.map((survey) => {
-            const isCompleted = completions?.includes(survey.id);
-            
-            return (
-            <Card key={survey.id} className="flex flex-col hover:shadow-md transition-shadow duration-200">
-              <CardHeader className="pb-3 relative">
-                {survey.reward > 0 && (
-                  <div className="absolute top-4 right-4 z-10 flex items-center gap-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-500 text-xs font-bold px-2 py-1 rounded-full shadow-sm">
-                    <Coins className="h-3 w-3" />
-                    +{survey.reward} pts
-                  </div>
-                )}
-                <div className="flex justify-between items-start gap-4 mr-16">
-                  <CardTitle className="line-clamp-2 text-lg leading-tight">{survey.title || "Untitled"}</CardTitle>
-                </div>
-                <CardDescription className="text-xs flex items-center gap-2 mt-1">
-                  <span>{format(new Date(survey.createdAt), "MMM d, yyyy")}</span>
-                  {!survey.externalUrl && (
-                    <>
-                      <span>•</span>
-                      <span>{survey.questionCount} questions</span>
-                    </>
-                  )}
-                  <Badge variant={survey.isPublished ? "default" : "secondary"} className="shrink-0 font-medium ml-auto">
-                    {survey.isPublished ? "Published" : "Draft"}
-                  </Badge>
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="flex-1 text-sm text-muted-foreground pb-4">
-                {survey.description ? (
-                  <p className="line-clamp-2">{survey.description}</p>
-                ) : (
-                  <p className="italic opacity-70">No description</p>
-                )}
-              </CardContent>
-              
-              <div className="px-6 py-3 border-t bg-muted/20 flex items-center gap-4 text-sm font-medium">
-                <div className="flex items-center gap-1.5">
-                  <BarChart2 className="h-4 w-4 text-muted-foreground" />
-                  <span>{survey.responseCount} responses</span>
-                </div>
-                {survey.externalUrl && (
-                  <Badge variant="outline" className="ml-auto text-xs bg-background">External</Badge>
-                )}
-              </div>
-              
-              <CardFooter className="pt-4 pb-4 gap-2 flex-wrap">
-                {/* User actions */}
-                {survey.isPublished && (
-                  <div className="w-full flex gap-2 mb-2">
-                    {survey.externalUrl ? (
-                      <>
-                        <Button 
-                          variant="default" 
-                          size="sm" 
-                          className="flex-1 gap-1.5"
-                          onClick={() => window.open(survey.externalUrl!, "_blank")}
-                        >
-                          <ExternalLink className="h-3.5 w-3.5" />
-                          Start Survey
-                        </Button>
-                        {user && survey.reward > 0 && (
-                          <Button 
-                            variant={isCompleted ? "secondary" : "default"} 
-                            size="sm" 
-                            className={`flex-1 gap-1.5 ${!isCompleted ? "bg-amber-500 hover:bg-amber-600 text-white" : ""}`}
-                            disabled={isCompleted || claimingSurveyId === survey.id}
-                            onClick={() => handleClaimReward(survey.id)}
-                          >
-                            {claimingSurveyId === survey.id ? "Claiming..." : isCompleted ? "Claimed" : "Claim Reward"}
-                          </Button>
-                        )}
-                      </>
-                    ) : (
-                      <Link href={`/surveys/${survey.id}`} className="w-full">
-                        <Button variant="default" size="sm" className="w-full gap-1.5" disabled={isCompleted}>
-                          {isCompleted ? "Completed" : "Take Survey"}
-                        </Button>
-                      </Link>
-                    )}
-                  </div>
-                )}
-                
-                {/* Admin actions */}
-                <div className="flex-1 flex gap-2 min-w-full sm:min-w-0">
-                  <Link href={`/surveys/${survey.id}/edit`} className="flex-1">
-                    <Button variant="outline" size="sm" className="w-full gap-1.5 h-9">
-                      <Settings className="h-3.5 w-3.5" />
-                      Build
-                    </Button>
-                  </Link>
-                  <Link href={`/surveys/${survey.id}/results`} className="flex-1">
-                    <Button variant={survey.responseCount > 0 ? "secondary" : "outline"} size="sm" className="w-full gap-1.5 h-9">
-                      <BarChart2 className="h-3.5 w-3.5" />
-                      Results
-                    </Button>
-                  </Link>
-                </div>
-                <div className="flex gap-2">
-                  {!survey.isPublished && (
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="px-3 h-9 text-green-600 hover:text-green-700 hover:bg-green-50 border-green-200 dark:border-green-900/30" 
-                      title="Publish survey"
-                      onClick={() => togglePublish(survey.id, survey.isPublished)}
-                    >
-                      <CheckCircle2 className="h-3.5 w-3.5" />
-                    </Button>
-                  )}
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="outline" size="sm" className="px-3 h-9 text-destructive hover:bg-destructive hover:text-destructive-foreground">
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Delete survey?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          This will permanently delete "{survey.title}" and all of its responses. This action cannot be undone.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction 
-                          onClick={() => deleteSurvey.mutate({ id: survey.id })}
-                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                        >
-                          Delete
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
-              </CardFooter>
-            </Card>
-          )})}
-        </div>
-      )}
+      </div>
     </Layout>
   );
 }
