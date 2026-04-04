@@ -18,21 +18,17 @@ function NativeTabLayout() {
         <Icon sf={{ default: "house", selected: "house.fill" }} />
         <Label>Home</Label>
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="surveys">
-        <Icon sf={{ default: "list.bullet", selected: "list.bullet" }} />
-        <Label>Surveys</Label>
-      </NativeTabs.Trigger>
       <NativeTabs.Trigger name="wallet">
-        <Icon sf={{ default: "wallet.pass", selected: "wallet.pass.fill" }} />
+        <Icon sf={{ default: "creditcard", selected: "creditcard.fill" }} />
         <Label>Wallet</Label>
-      </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="account">
-        <Icon sf={{ default: "person", selected: "person.fill" }} />
-        <Label>Account</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="refer">
         <Icon sf={{ default: "gift", selected: "gift.fill" }} />
         <Label>Refer</Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="account">
+        <Icon sf={{ default: "person", selected: "person.fill" }} />
+        <Label>Account</Label>
       </NativeTabs.Trigger>
     </NativeTabs>
   );
@@ -91,18 +87,6 @@ function ClassicTabLayout() {
         }}
       />
       <Tabs.Screen
-        name="surveys"
-        options={{
-          title: "Surveys",
-          tabBarIcon: ({ color }) =>
-            isIOS ? (
-              <SymbolView name="list.bullet" tintColor={color} size={24} />
-            ) : (
-              <Feather name="list" size={22} color={color} />
-            ),
-        }}
-      />
-      <Tabs.Screen
         name="wallet"
         options={{
           title: "Wallet",
@@ -115,18 +99,6 @@ function ClassicTabLayout() {
         }}
       />
       <Tabs.Screen
-        name="account"
-        options={{
-          title: "Account",
-          tabBarIcon: ({ color }) =>
-            isIOS ? (
-              <SymbolView name="person" tintColor={color} size={24} />
-            ) : (
-              <Feather name="user" size={22} color={color} />
-            ),
-        }}
-      />
-      <Tabs.Screen
         name="refer"
         options={{
           title: "Refer",
@@ -135,6 +107,18 @@ function ClassicTabLayout() {
               <SymbolView name="gift" tintColor={color} size={24} />
             ) : (
               <Feather name="gift" size={22} color={color} />
+            ),
+        }}
+      />
+      <Tabs.Screen
+        name="account"
+        options={{
+          title: "Account",
+          tabBarIcon: ({ color }) =>
+            isIOS ? (
+              <SymbolView name="person" tintColor={color} size={24} />
+            ) : (
+              <Feather name="user" size={22} color={color} />
             ),
         }}
       />
