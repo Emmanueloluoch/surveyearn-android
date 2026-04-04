@@ -59,6 +59,8 @@ router.post("/auth/login", async (req, res): Promise<void> => {
     return;
   }
 
+  const welcomeSurveyId = await ensureWelcomeSurvey();
+
   res.json({
     userId: user.id,
     name: user.name,
@@ -66,7 +68,7 @@ router.post("/auth/login", async (req, res): Promise<void> => {
     points: user.points,
     isActivated: user.isActivated,
     isVip: user.isVip,
-    welcomeSurveyId: null,
+    welcomeSurveyId,
   });
 });
 

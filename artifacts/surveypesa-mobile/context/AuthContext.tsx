@@ -11,6 +11,7 @@ export interface AuthUser {
   points: number;
   isActivated: boolean;
   isVip: boolean;
+  welcomeSurveyId: number | null;
 }
 
 interface AuthContextValue {

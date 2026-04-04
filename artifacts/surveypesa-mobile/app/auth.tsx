@@ -54,6 +54,9 @@ export default function AuthScreen() {
         name: result.name,
         phone: result.phone,
         points: result.points,
+        isActivated: result.isActivated ?? false,
+        isVip: result.isVip ?? false,
+        welcomeSurveyId: result.welcomeSurveyId ?? null,
       });
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       if (mode === "signup" && result.welcomeSurveyId) {

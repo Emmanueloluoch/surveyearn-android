@@ -135,7 +135,8 @@ export default function HomeScreen() {
   const completedSet = new Set(completedIds ?? []);
   const allPublished = surveys?.filter((s) => s.isPublished) ?? [];
   const welcomeSurvey = allPublished.find((s) => s.title === "Welcome Bonus Survey");
-  const welcomeDone = welcomeSurvey ? completedSet.has(welcomeSurvey.id) : false;
+  const welcomeSurveyId = user?.welcomeSurveyId ?? welcomeSurvey?.id ?? null;
+  const welcomeDone = welcomeSurveyId ? completedSet.has(welcomeSurveyId) : false;
   const topicSurveys = allPublished.filter((s) => s.title !== "Welcome Bonus Survey");
 
   const todaysSurveyIds = new Set(getTodaysSurveyIds(topicSurveys.map((s) => s.id), user?.userId ?? 0));
@@ -717,7 +718,7 @@ export default function HomeScreen() {
             ) : (
               <Pressable
                 style={({ pressed }) => [styles.welcomeFooter, { opacity: pressed ? 0.75 : 1 }]}
-                onPress={() => welcomeSurvey && router.push(`/survey/${welcomeSurvey.id}?welcome=true`)}
+                onPress={() => welcomeSurveyId && router.push(`/survey/${welcomeSurveyId}?welcome=true`)}
               >
                 <Feather name="play-circle" size={12} color={colors.primary} />
                 <Text style={[styles.welcomeFooterText, { color: colors.primary }]}>Start to unlock bonus</Text>
