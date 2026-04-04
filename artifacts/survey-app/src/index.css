@@ -66,85 +66,128 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+/* ─── SurveyPesa KE green theme ────────────────────────────────────────────
+   Source palette:
+     background  #e5f7e0  →  hsl(107 57% 93%)
+     foreground  #004d00  →  hsl(120 100% 15%)
+     primary     #00b33c  →  hsl(140 100% 35%)
+     card bg     #b3ffb3  →  hsl(120 100% 85%)
+     border      #004d00  →  hsl(120 100% 15%)
+   ─────────────────────────────────────────────────────────────────────── */
+
 :root {
-  --background: 210 40% 98%;
-  --foreground: 222.2 84% 4.9%;
+  /* Page background — #e5f7e0 */
+  --background: 107 57% 93%;
+  /* Main text — #004d00 */
+  --foreground: 120 100% 15%;
 
-  --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
-  --card-border: 214.3 31.8% 91.4%;
+  /* Cards — slightly lighter than card-bg for contrast */
+  --card: 120 60% 97%;
+  --card-foreground: 120 100% 15%;
+  --card-border: 120 40% 82%;
 
-  --popover: 0 0% 100%;
-  --popover-foreground: 222.2 84% 4.9%;
-  --popover-border: 214.3 31.8% 91.4%;
+  --popover: 120 60% 97%;
+  --popover-foreground: 120 100% 15%;
+  --popover-border: 120 40% 82%;
 
-  --primary: 238 83% 62%;
-  --primary-foreground: 210 40% 98%;
+  /* Primary buttons — #00b33c */
+  --primary: 140 100% 35%;
+  --primary-foreground: 0 0% 100%;
 
-  --secondary: 210 40% 96.1%;
-  --secondary-foreground: 222.2 47.4% 11.2%;
+  /* Secondary surfaces — #b3ffb3 toned down */
+  --secondary: 120 60% 88%;
+  --secondary-foreground: 120 100% 15%;
 
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
+  /* Muted areas */
+  --muted: 120 40% 90%;
+  --muted-foreground: 120 35% 38%;
 
-  --accent: 210 40% 96.1%;
-  --accent-foreground: 222.2 47.4% 11.2%;
+  /* Accent — matches secondary */
+  --accent: 120 60% 88%;
+  --accent-foreground: 120 100% 15%;
 
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
+  /* Destructive stays red */
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
 
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 238 83% 62%;
+  /* Borders & inputs — soft green */
+  --border: 120 40% 78%;
+  --input: 120 40% 78%;
+  /* Focus ring — primary green */
+  --ring: 140 100% 35%;
 
-  --chart-1: 238 83% 62%;
-  --chart-2: 173 58% 39%;
-  --chart-3: 197 37% 24%;
-  --chart-4: 43 74% 66%;
-  --chart-5: 27 87% 67%;
+  /* Charts — green family */
+  --chart-1: 140 100% 35%;
+  --chart-2: 120 60% 50%;
+  --chart-3: 120 100% 25%;
+  --chart-4: 80 70% 55%;
+  --chart-5: 160 70% 45%;
 
+  /* Border radius — 8px (matches original CSS) */
   --radius: 0.5rem;
-  --app-font-sans: 'Inter', sans-serif;
+
+  /* Font — Arial as in original CSS */
+  --app-font-sans: Arial, sans-serif;
   --app-font-serif: Georgia, serif;
   --app-font-mono: Menlo, monospace;
+
+  /* Sidebar inherits brand green */
+  --sidebar: 120 50% 90%;
+  --sidebar-foreground: 120 100% 15%;
+  --sidebar-border: 120 40% 78%;
+  --sidebar-primary: 140 100% 35%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 120 60% 85%;
+  --sidebar-accent-foreground: 120 100% 15%;
+  --sidebar-ring: 140 100% 35%;
 }
 
 .dark {
-  --background: 222.2 84% 4.9%;
-  --foreground: 210 40% 98%;
+  /* Dark mode — deep forest green background */
+  --background: 120 40% 8%;
+  --foreground: 120 30% 90%;
 
-  --card: 222.2 84% 4.9%;
-  --card-foreground: 210 40% 98%;
-  --card-border: 217.2 32.6% 17.5%;
+  --card: 120 35% 12%;
+  --card-foreground: 120 30% 90%;
+  --card-border: 120 30% 20%;
 
-  --popover: 222.2 84% 4.9%;
-  --popover-foreground: 210 40% 98%;
-  --popover-border: 217.2 32.6% 17.5%;
+  --popover: 120 35% 12%;
+  --popover-foreground: 120 30% 90%;
+  --popover-border: 120 30% 20%;
 
-  --primary: 238 83% 62%;
-  --primary-foreground: 210 40% 98%;
+  --primary: 140 90% 45%;
+  --primary-foreground: 0 0% 100%;
 
-  --secondary: 217.2 32.6% 17.5%;
-  --secondary-foreground: 210 40% 98%;
+  --secondary: 120 30% 18%;
+  --secondary-foreground: 120 30% 90%;
 
-  --muted: 217.2 32.6% 17.5%;
-  --muted-foreground: 215 20.2% 65.1%;
+  --muted: 120 30% 18%;
+  --muted-foreground: 120 20% 60%;
 
-  --accent: 217.2 32.6% 17.5%;
-  --accent-foreground: 210 40% 98%;
+  --accent: 120 30% 18%;
+  --accent-foreground: 120 30% 90%;
 
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 210 40% 98%;
+  --destructive: 0 62% 35%;
+  --destructive-foreground: 0 0% 100%;
 
-  --border: 217.2 32.6% 17.5%;
-  --input: 217.2 32.6% 17.5%;
-  --ring: 238 83% 62%;
+  --border: 120 30% 20%;
+  --input: 120 30% 20%;
+  --ring: 140 90% 45%;
 
-  --chart-1: 238 83% 62%;
-  --chart-2: 173 58% 39%;
-  --chart-3: 197 37% 24%;
-  --chart-4: 43 74% 66%;
-  --chart-5: 27 87% 67%;
+  --chart-1: 140 90% 45%;
+  --chart-2: 120 60% 50%;
+  --chart-3: 120 100% 70%;
+  --chart-4: 80 70% 55%;
+  --chart-5: 160 70% 45%;
+
+  --sidebar: 120 40% 10%;
+  --sidebar-foreground: 120 30% 90%;
+  --sidebar-border: 120 30% 20%;
+  --sidebar-primary: 140 90% 45%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 120 30% 15%;
+  --sidebar-accent-foreground: 120 30% 90%;
+  --sidebar-ring: 140 90% 45%;
 }
 
 @layer base {
