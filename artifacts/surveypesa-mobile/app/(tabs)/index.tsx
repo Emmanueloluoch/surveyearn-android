@@ -21,6 +21,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useColors } from "@/hooks/useColors";
 import { getDailyCompletions } from "@/utils/dailyCompletions";
 import { estimateMinutes, getCategoryColors, getSurveyMeta } from "@/utils/surveyMeta";
+import NotificationPermissionModal from "@/components/NotificationPermissionModal";
 
 const DAILY_FREE_LIMIT = 6;
 
@@ -626,6 +627,7 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
+      <NotificationPermissionModal />
       <View style={styles.header}>
         <Text style={styles.greeting}>
           Good {getGreetingWord()},{" "}
