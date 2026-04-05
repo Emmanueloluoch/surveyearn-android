@@ -217,7 +217,7 @@ export default function AccountScreen() {
             <Text style={styles.avatarText}>{initials}</Text>
           </View>
           <Text style={styles.displayName}>{user?.name ?? "User"}</Text>
-          <Text style={styles.emailText}>{userData?.email ?? user?.email ?? user?.phone ?? "—"}</Text>
+          <Text style={styles.emailText}>{userData?.email ?? user?.email ?? "—"}</Text>
 
           <View style={styles.badgeRow}>
             {user?.isVip ? (
@@ -259,7 +259,13 @@ export default function AccountScreen() {
             <View style={styles.menuIcon}>
               <Feather name="mail" size={18} color={colors.mutedForeground} />
             </View>
-            <Text style={styles.menuText}>{userData?.email ?? user?.email ?? user?.phone ?? "—"}</Text>
+            <Text style={styles.menuText}>{userData?.email ?? user?.email ?? "—"}</Text>
+          </View>
+          <View style={styles.menuItem}>
+            <View style={styles.menuIcon}>
+              <Feather name="phone" size={18} color={colors.mutedForeground} />
+            </View>
+            <Text style={styles.menuText}>{user?.phone ?? "—"}</Text>
           </View>
           <View style={[styles.menuItem, styles.menuItemLast]}>
             <View style={styles.menuIcon}>
