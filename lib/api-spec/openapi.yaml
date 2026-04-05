@@ -605,6 +605,8 @@ components:
           type: string
         phone:
           type: string
+        referralCode:
+          type: string
       required:
         - name
         - phone
@@ -634,6 +636,8 @@ components:
           type: boolean
         welcomeSurveyId:
           type: ["integer", "null"]
+        referralCode:
+          type: ["string", "null"]
       required:
         - userId
         - name
@@ -642,6 +646,7 @@ components:
         - isActivated
         - isVip
         - welcomeSurveyId
+        - referralCode
 
     VipUpgradeBody:
       type: object

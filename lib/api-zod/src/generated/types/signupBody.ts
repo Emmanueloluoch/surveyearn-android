@@ -9,4 +9,5 @@
 export interface SignupBody {
   name: string;
   phone: string;
+  referralCode?: string;
 }

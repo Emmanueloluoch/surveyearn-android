@@ -6,6 +6,7 @@ import { sendMpesaPayout } from "../lib/mpesa";
 
 const ACTIVATION_FEE_KSH = 150;
 const VIP_FEE_KSH = 500;
+const REFERRAL_REWARD_KSH = 200;
 
 const MINIMUM_WITHDRAWAL_POINTS = 3000;
 
@@ -91,6 +92,19 @@ router.post("/users/:id/activate", async (req, res): Promise<void> => {
     })
     .where(eq(usersTable.id, user.id))
     .returning();
+
+  // Credit the referrer KSh 200 if this user was referred and not yet credited
+  if (user.referredByUserId && !user.referralCredited) {
+    await db
+      .update(usersTable)
+      .set({ points: sql`${usersTable.points} + ${REFERRAL_REWARD_KSH}` })
+      .where(eq(usersTable.id, user.referredByUserId));
+
+    await db
+      .update(usersTable)
+      .set({ referralCredited: true })
+      .where(eq(usersTable.id, user.id));
+  }
 
   res.json({
     isActivated: true,

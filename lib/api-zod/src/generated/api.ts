@@ -21,6 +21,7 @@ export const HealthCheckResponse = zod.object({
 export const SignupBody = zod.object({
   name: zod.string(),
   phone: zod.string(),
+  referralCode: zod.string().optional(),
 });
 
 /**
@@ -38,6 +39,7 @@ export const LoginResponse = zod.object({
   isActivated: zod.boolean(),
   isVip: zod.boolean(),
   welcomeSurveyId: zod.number().nullable(),
+  referralCode: zod.string().nullable(),
 });
 
 /**

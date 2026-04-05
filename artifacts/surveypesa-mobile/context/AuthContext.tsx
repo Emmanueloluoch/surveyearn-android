@@ -12,6 +12,7 @@ export interface AuthUser {
   isActivated: boolean;
   isVip: boolean;
   welcomeSurveyId: number | null;
+  referralCode: string | null;
 }
 
 interface AuthContextValue {

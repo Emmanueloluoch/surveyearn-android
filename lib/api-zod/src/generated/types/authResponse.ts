@@ -15,4 +15,6 @@ export interface AuthResponse {
   isVip: boolean;
   /** @nullable */
   welcomeSurveyId: number | null;
+  /** @nullable */
+  referralCode: string | null;
 }

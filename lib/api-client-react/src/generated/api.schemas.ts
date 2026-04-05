@@ -26,6 +26,7 @@ export interface User {
 export interface SignupBody {
   name: string;
   phone: string;
+  referralCode?: string;
 }
 
 export interface LoginBody {
@@ -41,6 +42,8 @@ export interface AuthResponse {
   isVip: boolean;
   /** @nullable */
   welcomeSurveyId: number | null;
+  /** @nullable */
+  referralCode: string | null;
 }
 
 export interface VipUpgradeBody {

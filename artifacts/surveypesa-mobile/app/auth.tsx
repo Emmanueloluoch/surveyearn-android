@@ -27,6 +27,7 @@ export default function AuthScreen() {
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [referralInput, setReferralInput] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -45,7 +46,14 @@ export default function AuthScreen() {
     try {
       let result;
       if (mode === "signup") {
-        result = await apiSignup({ name: name.trim(), phone: phone.trim() });
+        const signupPayload: { name: string; phone: string; referralCode?: string } = {
+          name: name.trim(),
+          phone: phone.trim(),
+        };
+        if (referralInput.trim()) {
+          signupPayload.referralCode = referralInput.trim().toUpperCase();
+        }
+        result = await apiSignup(signupPayload);
       } else {
         result = await apiLogin({ phone: phone.trim() });
       }
@@ -57,6 +65,7 @@ export default function AuthScreen() {
         isActivated: result.isActivated ?? false,
         isVip: result.isVip ?? false,
         welcomeSurveyId: result.welcomeSurveyId ?? null,
+        referralCode: result.referralCode ?? null,
       });
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       if (mode === "signup" && result.welcomeSurveyId) {
@@ -158,6 +167,11 @@ export default function AuthScreen() {
       marginBottom: 8,
       marginTop: 16,
     },
+    optionalLabel: {
+      fontFamily: "Inter_400Regular",
+      fontSize: 12,
+      color: colors.mutedForeground,
+    },
     input: {
       backgroundColor: colors.card,
       borderWidth: 1,
@@ -232,7 +246,7 @@ export default function AuthScreen() {
             <View style={styles.toggleRow}>
               <Pressable
                 style={[styles.toggleBtn, mode === "login" && styles.toggleBtnActive]}
-                onPress={() => { setMode("login"); setError(""); }}
+                onPress={() => { setMode("login"); setError(""); setReferralInput(""); }}
               >
                 <Text style={[styles.toggleText, mode === "login" && styles.toggleTextActive]}>
                   Log In
@@ -259,6 +273,17 @@ export default function AuthScreen() {
                   placeholderTextColor={colors.mutedForeground}
                   autoCapitalize="words"
                   testID="name-input"
+                />
+                <Text style={styles.label}>Referral Code <Text style={styles.optionalLabel}>(optional)</Text></Text>
+                <TextInput
+                  style={styles.input}
+                  value={referralInput}
+                  onChangeText={(t) => setReferralInput(t.toUpperCase())}
+                  placeholder="e.g. ABCD1234"
+                  placeholderTextColor={colors.mutedForeground}
+                  autoCapitalize="characters"
+                  autoCorrect={false}
+                  testID="referral-input"
                 />
               </>
             )}
@@ -299,7 +324,7 @@ export default function AuthScreen() {
               <Text style={styles.footerText}>
                 {mode === "login" ? "New to SurveyPesa?" : "Already have an account?"}
               </Text>
-              <Pressable onPress={() => { setMode(mode === "login" ? "signup" : "login"); setError(""); }}>
+              <Pressable onPress={() => { setMode(mode === "login" ? "signup" : "login"); setError(""); setReferralInput(""); }}>
                 <Text style={styles.footerLink}>
                   {mode === "login" ? "Sign up" : "Log in"}
                 </Text>

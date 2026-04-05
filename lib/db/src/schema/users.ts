@@ -11,6 +11,9 @@ export const usersTable = pgTable("users", {
   activationMpesaCode: text("activation_mpesa_code"),
   isVip: boolean("is_vip").notNull().default(false),
   vipMpesaCode: text("vip_mpesa_code"),
+  referralCode: text("referral_code").unique(),
+  referredByUserId: integer("referred_by_user_id"),
+  referralCredited: boolean("referral_credited").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

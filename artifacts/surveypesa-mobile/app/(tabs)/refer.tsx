@@ -17,17 +17,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/context/AuthContext";
 import { useColors } from "@/hooks/useColors";
 
-function makeReferralCode(userId: number): string {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let seed = (userId + 100037) * 7919;
-  let code = "";
-  for (let i = 0; i < 8; i++) {
-    code += chars[Math.abs(seed) % chars.length];
-    seed = (seed * 31 + (i + 1) * 1234) % 999983;
-  }
-  return code;
-}
-
 export default function ReferScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
@@ -35,7 +24,7 @@ export default function ReferScreen() {
   const { user } = useAuth();
   const [copied, setCopied] = useState(false);
 
-  const referralCode = user ? makeReferralCode(user.userId) : "XXXXXXXX";
+  const referralCode = user?.referralCode ?? "XXXXXXXX";
 
   const REFERRAL_REWARD = 200;
 
