@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Shield background -->
+    <path
+        android:fillColor="#00b33c"
+        android:pathData="M54,18 L78,28 L78,52 C78,66 66,76 54,82 C42,76 30,66 30,52 L30,28 Z"/>
+
+    <!-- KSh text area -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M44,42 L46,42 L46,50 L44,50 Z"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M46,44 L52,44 L52,46 L46,46 Z"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M46,48 L52,50 L52,52 L46,50 Z"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M52,42 L64,42 L64,44 L52,44 Z"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M52,47 L64,47 L64,49 L52,49 Z"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M52,52 L64,52 L64,54 L52,54 Z"/>
+
+    <!-- Arrow up -->
+    <path
+        android:fillColor="#f59e0b"
+        android:pathData="M54,58 L60,66 L57,66 L57,74 L51,74 L51,66 L48,66 Z"/>
+</vector>

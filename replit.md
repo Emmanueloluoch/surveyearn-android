@@ -25,3 +25,19 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 - `pnpm --filter @workspace/api-server run dev` — run API server locally
 
 See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details.
+
+## Native Android App (SurveyPesa KE)
+
+Located at `artifacts/surveypesa-native/` — a full native Kotlin + Jetpack Compose Android app.
+
+- **Target APK size**: ~6–10 MB (arm64-only, R8 minification)
+- **Package**: `com.surveypesa.ke`
+- **API**: `https://survey-creator-surveypesa-ke.replit.app/`
+- **Build**: GitHub Actions (no Android Studio required)
+- **Stack**: Kotlin, Jetpack Compose, Retrofit, DataStore, Navigation Compose, Material 3
+
+### How to Build the APK
+1. Create a GitHub repo and push `artifacts/surveypesa-native/` to it
+2. GitHub Actions runs automatically and builds a debug APK
+3. Download the APK from the Actions → Artifacts section
+4. For signed release APK: run the "Generate Keystore" workflow once, add secrets, then rebuild

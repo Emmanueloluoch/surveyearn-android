@@ -1,0 +1,22 @@
+#!/bin/sh
+#
+# Gradle startup script for POSIX systems (Bash, Dash, etc.)
+#
+
+GRADLE_VERSION=8.7
+
+# Resolve the script directory
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+GRADLE_HOME="$HOME/.gradle/wrapper/dists/gradle-${GRADLE_VERSION}-bin"
+GRADLE_BIN="$GRADLE_HOME/gradle-${GRADLE_VERSION}/bin/gradle"
+
+if [ ! -f "$GRADLE_BIN" ]; then
+  echo "Downloading Gradle ${GRADLE_VERSION}..."
+  mkdir -p "$GRADLE_HOME"
+  GRADLE_ZIP="/tmp/gradle-${GRADLE_VERSION}-bin.zip"
+  curl -L "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" -o "$GRADLE_ZIP"
+  unzip -q "$GRADLE_ZIP" -d "$GRADLE_HOME"
+  rm -f "$GRADLE_ZIP"
+fi
+
+exec "$GRADLE_BIN" "$@"
