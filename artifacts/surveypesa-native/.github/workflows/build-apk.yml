@@ -12,6 +12,9 @@ jobs:
     name: Build APK
     runs-on: ubuntu-latest
 
+    env:
+      HAS_KEYSTORE: ${{ secrets.KEYSTORE_BASE64 != '' }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -25,7 +28,12 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Cache Gradle
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: Cache Gradle files
         uses: actions/cache@v4
         with:
           path: |
@@ -38,48 +46,46 @@ jobs:
         run: chmod +x gradlew
 
       - name: Decode keystore
-        if: ${{ env.KEYSTORE_BASE64 != '' }}
-        env:
-          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
-        run: echo "$KEYSTORE_BASE64" | base64 -d > app/keystore.jks
+        if: env.HAS_KEYSTORE == 'true'
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > app/keystore.jks
 
-      - name: Build debug APK (no keystore)
-        if: ${{ secrets.KEYSTORE_BASE64 == '' }}
-        run: ./gradlew assembleDebug --no-daemon
+      - name: Build debug APK
+        if: env.HAS_KEYSTORE != 'true'
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
 
       - name: Build release APK
-        if: ${{ secrets.KEYSTORE_BASE64 != '' }}
+        if: env.HAS_KEYSTORE == 'true'
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: ./gradlew assembleRelease --no-daemon
+        run: ./gradlew assembleRelease --no-daemon --stacktrace
 
       - name: Upload debug APK
-        if: ${{ secrets.KEYSTORE_BASE64 == '' }}
+        if: env.HAS_KEYSTORE != 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: SurveyPesa-KE-debug
+          name: SurveyEarn-debug
           path: app/build/outputs/apk/debug/*.apk
           retention-days: 30
 
       - name: Upload release APK
-        if: ${{ secrets.KEYSTORE_BASE64 != '' }}
+        if: env.HAS_KEYSTORE == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: SurveyPesa-KE-release
+          name: SurveyEarn-release
           path: app/build/outputs/apk/release/*.apk
           retention-days: 30
 
       - name: Create GitHub Release
-        if: >
+        if: >-
+          env.HAS_KEYSTORE == 'true' &&
           github.event_name == 'push' &&
-          (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') &&
-          secrets.KEYSTORE_BASE64 != ''
+          (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ github.run_number }}
-          name: SurveyPesa KE v${{ github.run_number }}
+          name: SurveyEarn v${{ github.run_number }}
           files: app/build/outputs/apk/release/*.apk
           generate_release_notes: true
         env:
