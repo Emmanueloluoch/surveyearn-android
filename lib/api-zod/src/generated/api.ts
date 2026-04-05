@@ -66,6 +66,24 @@ export const GetUserResponse = zod.object({
 });
 
 /**
+ * @summary Update user profile (email and/or phone)
+ */
+export const UpdateUserParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdateUserBody = zod.object({
+  email: zod.string().email().optional(),
+  phone: zod.string().optional(),
+});
+
+export const UpdateUserResponse = zod.object({
+  id: zod.number(),
+  email: zod.string().nullable(),
+  phone: zod.string(),
+});
+
+/**
  * @summary Get surveys completed by a user
  */
 export const GetUserCompletionsParams = zod.object({

@@ -46,6 +46,17 @@ export interface AuthResponse {
   referralCode: string | null;
 }
 
+export interface UpdateUserBody {
+  email?: string;
+  phone?: string;
+}
+
+export interface UpdateUserResponse {
+  id: number;
+  email: string | null;
+  phone: string;
+}
+
 export interface VipUpgradeBody {
   mpesaCode: string;
 }

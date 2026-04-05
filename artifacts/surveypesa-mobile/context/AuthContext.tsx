@@ -24,6 +24,7 @@ interface AuthContextValue {
   updatePoints: (points: number) => void;
   setActivated: (points: number) => void;
   setVip: (points: number) => void;
+  updateProfile: (patch: Partial<Pick<AuthUser, "email" | "phone">>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -82,8 +83,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  const updateProfile = async (patch: Partial<Pick<AuthUser, "email" | "phone">>) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+      const updated = { ...prev, ...patch };
+      AsyncStorage.setItem(AUTH_KEY, JSON.stringify(updated));
+      return updated;
+    });
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout, updatePoints, setActivated, setVip }}>
+    <AuthContext.Provider value={{ user, isLoading, login, logout, updatePoints, setActivated, setVip, updateProfile }}>
       {children}
     </AuthContext.Provider>
   );
