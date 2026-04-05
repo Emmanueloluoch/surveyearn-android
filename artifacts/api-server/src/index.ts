@@ -1,6 +1,7 @@
 import app from "./app";
 import { logger } from "./lib/logger";
 import { ensureWelcomeSurvey } from "./lib/welcomeSurvey";
+import { ensureTopicSurveys } from "./lib/ensureSurveys";
 
 const rawPort = process.env["PORT"];
 
@@ -29,5 +30,11 @@ app.listen(port, async (err) => {
     logger.info({ welcomeSurveyId }, "Welcome bonus survey ready");
   } catch (e) {
     logger.error({ err: e }, "Failed to ensure welcome survey on startup");
+  }
+
+  try {
+    await ensureTopicSurveys();
+  } catch (e) {
+    logger.error({ err: e }, "Failed to ensure topic surveys on startup");
   }
 });
