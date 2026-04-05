@@ -155,7 +155,7 @@ export default function SurveyDetailScreen() {
     },
     introHeader: {
       backgroundColor: colors.background,
-      paddingTop: topPad + 8,
+      paddingTop: 12,
       paddingBottom: 4,
       paddingHorizontal: 16,
     },
@@ -255,7 +255,7 @@ export default function SurveyDetailScreen() {
     },
     progressHeader: {
       backgroundColor: colors.background,
-      paddingTop: topPad + 8,
+      paddingTop: 12,
       paddingHorizontal: 16,
       paddingBottom: 12,
       borderBottomWidth: 1,
@@ -538,7 +538,7 @@ export default function SurveyDetailScreen() {
 
   if (isWelcome && welcomeStep === "intro") {
     return (
-      <View style={styles.introContainer}>
+      <ScrollView style={styles.introContainer} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: bottomPad }}>
         <View style={styles.introHeader}>
           <View style={styles.introHeroCard}>
             <View style={styles.introIcon}>
@@ -576,7 +576,7 @@ export default function SurveyDetailScreen() {
             <Text style={styles.introStartText}>Start Survey</Text>
           </Pressable>
         </View>
-      </View>
+      </ScrollView>
     );
   }
 
