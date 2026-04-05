@@ -845,7 +845,6 @@ export default function HomeScreen() {
             );
           })}
         </View>
-        </View>
       </ScrollView>
 
       {/* ACTIVATION MODAL */}
