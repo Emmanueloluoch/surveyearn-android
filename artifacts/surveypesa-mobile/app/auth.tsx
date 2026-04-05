@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
+  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -113,18 +114,11 @@ export default function AuthScreen() {
       paddingBottom: 40,
     },
     logo: {
-      width: 72,
-      height: 72,
+      width: 80,
+      height: 80,
       borderRadius: 20,
-      backgroundColor: colors.primary,
-      alignItems: "center",
-      justifyContent: "center",
+      overflow: "hidden",
       marginBottom: 16,
-    },
-    logoText: {
-      fontSize: 32,
-      fontFamily: "Inter_700Bold",
-      color: colors.primaryForeground,
     },
     appName: {
       fontSize: 26,
@@ -275,9 +269,11 @@ export default function AuthScreen() {
       >
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           <View style={styles.header}>
-            <View style={styles.logo}>
-              <Text style={styles.logoText}>SP</Text>
-            </View>
+            <Image
+              source={require("../assets/images/icon.png")}
+              style={styles.logo}
+              resizeMode="cover"
+            />
             <Text style={styles.appName}>SurveyPesa KE</Text>
             <Text style={styles.tagline}>Earn KSh by completing surveys</Text>
           </View>

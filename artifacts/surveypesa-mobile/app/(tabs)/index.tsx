@@ -6,6 +6,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Animated,
+  Image,
   Modal,
   Platform,
   Pressable,
@@ -224,14 +225,7 @@ export default function HomeScreen() {
       width: 36,
       height: 36,
       borderRadius: 10,
-      backgroundColor: colors.primary,
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    appLogoText: {
-      fontFamily: "Inter_700Bold",
-      fontSize: 18,
-      color: "#ffffff",
+      overflow: "hidden",
     },
     appName: {
       fontFamily: "Inter_700Bold",
@@ -731,9 +725,11 @@ export default function HomeScreen() {
         <View style={styles.header}>
           <View style={styles.appBar}>
             <View style={styles.appBarLeft}>
-              <View style={styles.appLogoCircle}>
-                <Text style={styles.appLogoText}>S</Text>
-              </View>
+              <Image
+                source={require("../../assets/images/icon.png")}
+                style={styles.appLogoCircle}
+                resizeMode="cover"
+              />
               <Text style={styles.appName}>SurveyPesa KE</Text>
             </View>
             <Pressable
