@@ -14,6 +14,7 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Feather } from "@expo/vector-icons";
 
 import { useAuth } from "@/context/AuthContext";
 import { useColors } from "@/hooks/useColors";
@@ -26,6 +27,9 @@ export default function AuthScreen() {
 
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [phone, setPhone] = useState("");
   const [referralInput, setReferralInput] = useState("");
   const [error, setError] = useState("");
@@ -33,29 +37,34 @@ export default function AuthScreen() {
 
   const handleSubmit = async () => {
     setError("");
-    if (!phone.trim()) {
-      setError("Phone number is required");
-      return;
-    }
-    if (mode === "signup" && !name.trim()) {
-      setError("Name is required");
-      return;
+
+    if (mode === "signup") {
+      if (!name.trim()) { setError("Full name is required"); return; }
+      if (!email.trim()) { setError("Email address is required"); return; }
+      if (!email.includes("@")) { setError("Please enter a valid email address"); return; }
+      if (password.length < 6) { setError("Password must be at least 6 characters"); return; }
+      if (!phone.trim()) { setError("Phone number is required for M-Pesa withdrawals"); return; }
+    } else {
+      if (!email.trim()) { setError("Email address is required"); return; }
+      if (!password) { setError("Password is required"); return; }
     }
 
     setLoading(true);
     try {
       let result;
       if (mode === "signup") {
-        const signupPayload: { name: string; phone: string; referralCode?: string } = {
+        const payload: { name: string; email: string; password: string; phone: string; referralCode?: string } = {
           name: name.trim(),
+          email: email.trim(),
+          password,
           phone: phone.trim(),
         };
         if (referralInput.trim()) {
-          signupPayload.referralCode = referralInput.trim().toUpperCase();
+          payload.referralCode = referralInput.trim().toUpperCase();
         }
-        result = await apiSignup(signupPayload);
+        result = await apiSignup(payload);
       } else {
-        result = await apiLogin({ phone: phone.trim() });
+        result = await apiLogin({ email: email.trim(), password });
       }
       await login({
         userId: result.userId,
@@ -74,13 +83,18 @@ export default function AuthScreen() {
         router.replace("/(tabs)");
       }
     } catch (err: unknown) {
-      const msg =
-        err instanceof Error ? err.message : "Something went wrong. Try again.";
+      const msg = err instanceof Error ? err.message : "Something went wrong. Try again.";
       setError(msg);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const switchMode = (next: "login" | "signup") => {
+    setMode(next);
+    setError("");
+    setReferralInput("");
   };
 
   const styles = StyleSheet.create({
@@ -136,7 +150,7 @@ export default function AuthScreen() {
       backgroundColor: colors.muted,
       borderRadius: 10,
       padding: 3,
-      marginBottom: 28,
+      marginBottom: 24,
     },
     toggleBtn: {
       flex: 1,
@@ -165,7 +179,7 @@ export default function AuthScreen() {
       fontSize: 13,
       color: colors.foreground,
       marginBottom: 8,
-      marginTop: 16,
+      marginTop: 14,
     },
     optionalLabel: {
       fontFamily: "Inter_400Regular",
@@ -183,6 +197,31 @@ export default function AuthScreen() {
       fontSize: 16,
       color: colors.foreground,
     },
+    passwordRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: colors.card,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 12,
+      paddingHorizontal: 16,
+    },
+    passwordInput: {
+      flex: 1,
+      fontFamily: "Inter_400Regular",
+      fontSize: 16,
+      color: colors.foreground,
+      paddingVertical: 14,
+    },
+    eyeBtn: {
+      padding: 4,
+    },
+    hintText: {
+      fontFamily: "Inter_400Regular",
+      fontSize: 11,
+      color: colors.mutedForeground,
+      marginTop: 4,
+    },
     errorBox: {
       backgroundColor: "#fff0f0",
       borderRadius: 10,
@@ -199,7 +238,7 @@ export default function AuthScreen() {
       borderRadius: 14,
       paddingVertical: 16,
       alignItems: "center",
-      marginTop: 28,
+      marginTop: 24,
     },
     submitBtnDisabled: {
       opacity: 0.6,
@@ -246,7 +285,7 @@ export default function AuthScreen() {
             <View style={styles.toggleRow}>
               <Pressable
                 style={[styles.toggleBtn, mode === "login" && styles.toggleBtnActive]}
-                onPress={() => { setMode("login"); setError(""); setReferralInput(""); }}
+                onPress={() => switchMode("login")}
               >
                 <Text style={[styles.toggleText, mode === "login" && styles.toggleTextActive]}>
                   Log In
@@ -254,7 +293,7 @@ export default function AuthScreen() {
               </Pressable>
               <Pressable
                 style={[styles.toggleBtn, mode === "signup" && styles.toggleBtnActive]}
-                onPress={() => { setMode("signup"); setError(""); }}
+                onPress={() => switchMode("signup")}
               >
                 <Text style={[styles.toggleText, mode === "signup" && styles.toggleTextActive]}>
                   Sign Up
@@ -274,6 +313,53 @@ export default function AuthScreen() {
                   autoCapitalize="words"
                   testID="name-input"
                 />
+              </>
+            )}
+
+            <Text style={styles.label}>Email Address</Text>
+            <TextInput
+              style={styles.input}
+              value={email}
+              onChangeText={setEmail}
+              placeholder="jane@example.com"
+              placeholderTextColor={colors.mutedForeground}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              testID="email-input"
+            />
+
+            <Text style={styles.label}>Password</Text>
+            <View style={styles.passwordRow}>
+              <TextInput
+                style={styles.passwordInput}
+                value={password}
+                onChangeText={setPassword}
+                placeholder={mode === "signup" ? "Minimum 6 characters" : "Enter your password"}
+                placeholderTextColor={colors.mutedForeground}
+                secureTextEntry={!showPassword}
+                autoCapitalize="none"
+                autoCorrect={false}
+                testID="password-input"
+              />
+              <Pressable style={styles.eyeBtn} onPress={() => setShowPassword(v => !v)}>
+                <Feather name={showPassword ? "eye-off" : "eye"} size={18} color={colors.mutedForeground} />
+              </Pressable>
+            </View>
+
+            {mode === "signup" && (
+              <>
+                <Text style={styles.label}>Phone Number <Text style={styles.optionalLabel}>(for M-Pesa)</Text></Text>
+                <TextInput
+                  style={styles.input}
+                  value={phone}
+                  onChangeText={setPhone}
+                  placeholder="0712345678"
+                  placeholderTextColor={colors.mutedForeground}
+                  keyboardType="phone-pad"
+                  testID="phone-input"
+                />
+
                 <Text style={styles.label}>Referral Code <Text style={styles.optionalLabel}>(optional)</Text></Text>
                 <TextInput
                   style={styles.input}
@@ -288,17 +374,6 @@ export default function AuthScreen() {
               </>
             )}
 
-            <Text style={styles.label}>Phone Number</Text>
-            <TextInput
-              style={styles.input}
-              value={phone}
-              onChangeText={setPhone}
-              placeholder="0712345678"
-              placeholderTextColor={colors.mutedForeground}
-              keyboardType="phone-pad"
-              testID="phone-input"
-            />
-
             {error ? (
               <View style={styles.errorBox}>
                 <Text style={styles.errorText}>{error}</Text>
@@ -306,7 +381,7 @@ export default function AuthScreen() {
             ) : null}
 
             <Pressable
-              style={[styles.submitBtn, loading && styles.submitBtnDisabled]}
+              style={({ pressed }) => [styles.submitBtn, (loading || pressed) && styles.submitBtnDisabled]}
               onPress={handleSubmit}
               disabled={loading}
               testID="submit-btn"
@@ -324,7 +399,7 @@ export default function AuthScreen() {
               <Text style={styles.footerText}>
                 {mode === "login" ? "New to SurveyPesa?" : "Already have an account?"}
               </Text>
-              <Pressable onPress={() => { setMode(mode === "login" ? "signup" : "login"); setError(""); setReferralInput(""); }}>
+              <Pressable onPress={() => switchMode(mode === "login" ? "signup" : "login")}>
                 <Text style={styles.footerLink}>
                   {mode === "login" ? "Sign up" : "Log in"}
                 </Text>

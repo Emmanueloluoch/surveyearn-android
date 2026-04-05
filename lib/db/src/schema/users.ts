@@ -6,6 +6,8 @@ export const usersTable = pgTable("users", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   phone: text("phone").notNull().unique(),
+  email: text("email").unique(),
+  passwordHash: text("password_hash"),
   points: integer("points").notNull().default(0),
   isActivated: boolean("is_activated").notNull().default(false),
   activationMpesaCode: text("activation_mpesa_code"),

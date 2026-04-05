@@ -603,21 +603,33 @@ components:
       properties:
         name:
           type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
         phone:
           type: string
         referralCode:
           type: string
       required:
         - name
+        - email
+        - password
         - phone
 
     LoginBody:
       type: object
       properties:
-        phone:
+        email:
+          type: string
+          format: email
+        password:
           type: string
       required:
-        - phone
+        - email
+        - password
 
     AuthResponse:
       type: object

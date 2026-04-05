@@ -20,15 +20,18 @@ export const HealthCheckResponse = zod.object({
  */
 export const SignupBody = zod.object({
   name: zod.string(),
+  email: zod.string().email(),
+  password: zod.string().min(6),
   phone: zod.string(),
   referralCode: zod.string().optional(),
 });
 
 /**
- * @summary Login with phone number
+ * @summary Login with email and password
  */
 export const LoginBody = zod.object({
-  phone: zod.string(),
+  email: zod.string().email(),
+  password: zod.string(),
 });
 
 export const LoginResponse = zod.object({

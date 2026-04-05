@@ -1,5 +1,6 @@
 import { Router, type IRouter } from "express";
-import { eq } from "drizzle-orm";
+import { eq, or } from "drizzle-orm";
+import bcrypt from "bcryptjs";
 import { db, usersTable } from "@workspace/db";
 import { SignupBody, LoginBody } from "@workspace/api-zod";
 import { ensureWelcomeSurvey } from "../lib/welcomeSurvey";
@@ -14,23 +15,38 @@ router.post("/auth/signup", async (req, res): Promise<void> => {
     return;
   }
 
-  const existing = await db
-    .select()
-    .from(usersTable)
-    .where(eq(usersTable.phone, parsed.data.phone));
+  const { name, email, password, phone, referralCode } = parsed.data;
 
-  if (existing.length > 0) {
+  const existingByEmail = await db
+    .select({ id: usersTable.id })
+    .from(usersTable)
+    .where(eq(usersTable.email, email.toLowerCase().trim()))
+    .limit(1);
+
+  if (existingByEmail.length > 0) {
+    res.status(400).json({ error: "Email address already registered" });
+    return;
+  }
+
+  const existingByPhone = await db
+    .select({ id: usersTable.id })
+    .from(usersTable)
+    .where(eq(usersTable.phone, phone.trim()))
+    .limit(1);
+
+  if (existingByPhone.length > 0) {
     res.status(400).json({ error: "Phone number already registered" });
     return;
   }
 
-  // Look up referrer if a code was provided
+  const passwordHash = await bcrypt.hash(password, 10);
+
   let referredByUserId: number | null = null;
-  if (parsed.data.referralCode) {
+  if (referralCode) {
     const [referrer] = await db
       .select({ id: usersTable.id })
       .from(usersTable)
-      .where(eq(usersTable.referralCode, parsed.data.referralCode.trim().toUpperCase()))
+      .where(eq(usersTable.referralCode, referralCode.trim().toUpperCase()))
       .limit(1);
     if (referrer) {
       referredByUserId = referrer.id;
@@ -42,18 +58,19 @@ router.post("/auth/signup", async (req, res): Promise<void> => {
     db
       .insert(usersTable)
       .values({
-        name: parsed.data.name,
-        phone: parsed.data.phone,
+        name,
+        phone: phone.trim(),
+        email: email.toLowerCase().trim(),
+        passwordHash,
         referredByUserId,
       })
       .returning(),
   ]);
 
-  // Generate and store this user's own referral code (based on their new ID)
-  const referralCode = generateReferralCode(user.id);
+  const newReferralCode = generateReferralCode(user.id);
   await db
     .update(usersTable)
-    .set({ referralCode })
+    .set({ referralCode: newReferralCode })
     .where(eq(usersTable.id, user.id));
 
   res.status(201).json({
@@ -64,7 +81,7 @@ router.post("/auth/signup", async (req, res): Promise<void> => {
     isActivated: user.isActivated,
     isVip: user.isVip,
     welcomeSurveyId,
-    referralCode,
+    referralCode: newReferralCode,
   });
 });
 
@@ -75,17 +92,30 @@ router.post("/auth/login", async (req, res): Promise<void> => {
     return;
   }
 
+  const { email, password } = parsed.data;
+
   const [user] = await db
     .select()
     .from(usersTable)
-    .where(eq(usersTable.phone, parsed.data.phone));
+    .where(eq(usersTable.email, email.toLowerCase().trim()))
+    .limit(1);
 
   if (!user) {
-    res.status(404).json({ error: "User not found" });
+    res.status(401).json({ error: "Invalid email or password" });
     return;
   }
 
-  // Ensure this user has a referral code stored (backfill for existing users)
+  if (!user.passwordHash) {
+    res.status(401).json({ error: "Invalid email or password" });
+    return;
+  }
+
+  const valid = await bcrypt.compare(password, user.passwordHash);
+  if (!valid) {
+    res.status(401).json({ error: "Invalid email or password" });
+    return;
+  }
+
   let referralCode = user.referralCode;
   if (!referralCode) {
     referralCode = generateReferralCode(user.id);
