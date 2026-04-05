@@ -196,6 +196,10 @@ export default function HomeScreen() {
   const bottomPad = Platform.OS === "web" ? 34 + 84 : insets.bottom + 84;
   const ticker = LIVE_WITHDRAWALS[tickerIdx];
 
+  const initials = user?.name
+    ? user.name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()
+    : "?";
+
   const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
 
@@ -204,6 +208,48 @@ export default function HomeScreen() {
       paddingHorizontal: 16,
       paddingBottom: 4,
       backgroundColor: colors.background,
+    },
+    appBar: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginBottom: 14,
+    },
+    appBarLeft: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 10,
+    },
+    appLogoCircle: {
+      width: 36,
+      height: 36,
+      borderRadius: 10,
+      backgroundColor: colors.primary,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    appLogoText: {
+      fontFamily: "Inter_700Bold",
+      fontSize: 18,
+      color: "#ffffff",
+    },
+    appName: {
+      fontFamily: "Inter_700Bold",
+      fontSize: 20,
+      color: colors.foreground,
+    },
+    avatarBtn: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: colors.primary,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    avatarBtnText: {
+      fontFamily: "Inter_700Bold",
+      fontSize: 15,
+      color: "#ffffff",
     },
     greeting: {
       fontFamily: "Inter_500Medium",
@@ -683,6 +729,21 @@ export default function HomeScreen() {
         }
       >
         <View style={styles.header}>
+          <View style={styles.appBar}>
+            <View style={styles.appBarLeft}>
+              <View style={styles.appLogoCircle}>
+                <Text style={styles.appLogoText}>S</Text>
+              </View>
+              <Text style={styles.appName}>SurveyPesa KE</Text>
+            </View>
+            <Pressable
+              style={({ pressed }) => [styles.avatarBtn, { opacity: pressed ? 0.8 : 1 }]}
+              onPress={() => router.push("/(tabs)/account")}
+            >
+              <Text style={styles.avatarBtnText}>{initials}</Text>
+            </Pressable>
+          </View>
+
           <Text style={styles.greeting}>
             Good {getGreetingWord()},{" "}
             <Text style={styles.greetingName}>{user?.name?.split(" ")[0] ?? "Explorer"}</Text>
