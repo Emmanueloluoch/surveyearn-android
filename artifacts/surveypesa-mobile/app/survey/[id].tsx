@@ -89,7 +89,6 @@ export default function SurveyDetailScreen() {
   };
 
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom + 16;
-  const topPad = Platform.OS === "web" ? 67 : insets.top;
 
   const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
