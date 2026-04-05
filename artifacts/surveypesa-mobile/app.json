@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "SurveyPesa KE Mobile",
+    "name": "SurveyPesa KE",
     "slug": "surveypesa-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -42,7 +42,8 @@
           "android": {
             "enableProguardInReleaseBuilds": true,
             "enableShrinkResources": true,
-            "extraProguardRules": "-keep class com.facebook.hermes.unicode.** { *; }\n-keep class com.facebook.jni.** { *; }"
+            "minifyEnabled": true,
+            "extraProguardRules": "-keep class com.facebook.hermes.unicode.** { *; }\n-keep class com.facebook.jni.** { *; }\n-keep class com.facebook.react.** { *; }\n-dontwarn com.facebook.react.**"
           }
         }
       ],
