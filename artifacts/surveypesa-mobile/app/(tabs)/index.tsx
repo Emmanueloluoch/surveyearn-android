@@ -628,34 +628,6 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <NotificationPermissionModal />
-      <View style={styles.header}>
-        <Text style={styles.greeting}>
-          Good {getGreetingWord()},{" "}
-          <Text style={styles.greetingName}>{user?.name?.split(" ")[0] ?? "Explorer"}</Text>
-          {"  "}{getGreetingEmoji()}
-        </Text>
-        <Text style={styles.subtitle}>Earn surely, withdraw instantly.</Text>
-        <Text style={styles.balLabel}>Available Balance</Text>
-        <Text style={styles.balAmount}>
-          {currentPoints.toLocaleString()}{" "}
-          <Text style={styles.balUnit}>KSh</Text>
-        </Text>
-        <View style={styles.actionRow}>
-          <Pressable
-            style={({ pressed }) => [styles.actionBtn, styles.withdrawBtn, { opacity: pressed ? 0.8 : 1 }]}
-            onPress={() => router.push("/(tabs)/wallet")}
-          >
-            <Text style={styles.actionBtnText}>Withdraw</Text>
-          </Pressable>
-          <Pressable
-            style={({ pressed }) => [styles.actionBtn, styles.earnBtn, { opacity: pressed ? 0.8 : 1 }]}
-            onPress={() => {}}
-          >
-            <Text style={styles.actionBtnText}>Earn More</Text>
-          </Pressable>
-        </View>
-      </View>
-
       <ScrollView
         style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}
@@ -668,6 +640,33 @@ export default function HomeScreen() {
           />
         }
       >
+        <View style={styles.header}>
+          <Text style={styles.greeting}>
+            Good {getGreetingWord()},{" "}
+            <Text style={styles.greetingName}>{user?.name?.split(" ")[0] ?? "Explorer"}</Text>
+            {"  "}{getGreetingEmoji()}
+          </Text>
+          <Text style={styles.subtitle}>Earn surely, withdraw instantly.</Text>
+          <Text style={styles.balLabel}>Available Balance</Text>
+          <Text style={styles.balAmount}>
+            {currentPoints.toLocaleString()}{" "}
+            <Text style={styles.balUnit}>KSh</Text>
+          </Text>
+          <View style={styles.actionRow}>
+            <Pressable
+              style={({ pressed }) => [styles.actionBtn, styles.withdrawBtn, { opacity: pressed ? 0.8 : 1 }]}
+              onPress={() => router.push("/(tabs)/wallet")}
+            >
+              <Text style={styles.actionBtnText}>Withdraw</Text>
+            </Pressable>
+            <Pressable
+              style={({ pressed }) => [styles.actionBtn, styles.earnBtn, { opacity: pressed ? 0.8 : 1 }]}
+              onPress={() => {}}
+            >
+              <Text style={styles.actionBtnText}>Earn More</Text>
+            </Pressable>
+          </View>
+        </View>
         <View style={styles.body}>
 
           {/* LIVE TICKER */}
@@ -845,6 +844,7 @@ export default function HomeScreen() {
               />
             );
           })}
+        </View>
         </View>
       </ScrollView>
 
