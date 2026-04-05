@@ -154,9 +154,15 @@ export default function SurveyDetailScreen() {
       backgroundColor: colors.background,
     },
     introHeader: {
-      backgroundColor: colors.headerBg,
-      paddingTop: topPad + 20,
-      paddingBottom: 32,
+      backgroundColor: colors.background,
+      paddingTop: topPad + 8,
+      paddingBottom: 4,
+      paddingHorizontal: 16,
+    },
+    introHeroCard: {
+      backgroundColor: colors.primary,
+      borderRadius: 16,
+      paddingVertical: 28,
       paddingHorizontal: 24,
       alignItems: "center",
     },
@@ -164,7 +170,7 @@ export default function SurveyDetailScreen() {
       width: 72,
       height: 72,
       borderRadius: 36,
-      backgroundColor: colors.primary,
+      backgroundColor: "rgba(255,255,255,0.2)",
       alignItems: "center",
       justifyContent: "center",
       marginBottom: 16,
@@ -180,7 +186,7 @@ export default function SurveyDetailScreen() {
     introSubtitle: {
       fontFamily: "Inter_400Regular",
       fontSize: 14,
-      color: "rgba(255,255,255,0.75)",
+      color: "rgba(255,255,255,0.8)",
       textAlign: "center",
       lineHeight: 20,
     },
@@ -248,10 +254,12 @@ export default function SurveyDetailScreen() {
       backgroundColor: colors.background,
     },
     progressHeader: {
-      backgroundColor: colors.headerBg,
+      backgroundColor: colors.background,
       paddingTop: topPad + 8,
-      paddingHorizontal: 20,
-      paddingBottom: 16,
+      paddingHorizontal: 16,
+      paddingBottom: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
     },
     progressTopRow: {
       flexDirection: "row",
@@ -262,22 +270,22 @@ export default function SurveyDetailScreen() {
     progressLabel: {
       fontFamily: "Inter_500Medium",
       fontSize: 13,
-      color: "rgba(255,255,255,0.75)",
+      color: colors.mutedForeground,
     },
     progressPct: {
       fontFamily: "Inter_700Bold",
       fontSize: 13,
-      color: "#ffffff",
+      color: colors.primary,
     },
     progressTrack: {
       height: 6,
-      backgroundColor: "rgba(255,255,255,0.2)",
+      backgroundColor: colors.muted,
       borderRadius: 3,
       overflow: "hidden",
     },
     progressFill: {
       height: 6,
-      backgroundColor: "#ffffff",
+      backgroundColor: colors.primary,
       borderRadius: 3,
     },
 
@@ -473,12 +481,12 @@ export default function SurveyDetailScreen() {
             width: 96,
             height: 96,
             borderRadius: 48,
-            backgroundColor: colors.headerBg,
+            backgroundColor: colors.primary,
             alignItems: "center",
             justifyContent: "center",
             marginBottom: 20,
           }}>
-            <Text style={{ fontSize: 46 }}>★</Text>
+            <Text style={{ fontSize: 46 }}>⭐</Text>
           </View>
           <Text style={[styles.doneTitle, { fontSize: 26 }]}>
             Bonus Unlocked!
@@ -532,13 +540,15 @@ export default function SurveyDetailScreen() {
     return (
       <View style={styles.introContainer}>
         <View style={styles.introHeader}>
-          <View style={styles.introIcon}>
-            <Text style={styles.introIconText}>🎁</Text>
+          <View style={styles.introHeroCard}>
+            <View style={styles.introIcon}>
+              <Text style={styles.introIconText}>🎁</Text>
+            </View>
+            <Text style={styles.introTitle}>Welcome to Paid Surveys</Text>
+            <Text style={styles.introSubtitle}>
+              Answer a few quick questions to unlock your welcome bonus
+            </Text>
           </View>
-          <Text style={styles.introTitle}>Welcome to Paid Surveys</Text>
-          <Text style={styles.introSubtitle}>
-            Answer a few quick questions to unlock your welcome bonus
-          </Text>
         </View>
 
         <View style={styles.introBody}>

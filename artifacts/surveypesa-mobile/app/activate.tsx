@@ -70,39 +70,47 @@ export default function ActivateScreen() {
   const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
     header: {
-      backgroundColor: colors.headerBg,
-      paddingTop: topPad + 12,
-      paddingBottom: 24,
-      paddingHorizontal: 20,
+      backgroundColor: colors.background,
+      paddingTop: topPad + 8,
+      paddingBottom: 4,
+      paddingHorizontal: 16,
     },
     backBtn: {
       width: 36,
       height: 36,
       borderRadius: 18,
-      backgroundColor: "rgba(255,255,255,0.15)",
-      alignItems: "center",
-      justifyContent: "center",
-      marginBottom: 16,
-    },
-    headerIcon: {
-      width: 64,
-      height: 64,
-      borderRadius: 32,
-      backgroundColor: "rgba(255,255,255,0.15)",
+      backgroundColor: `${colors.primary}15`,
       alignItems: "center",
       justifyContent: "center",
       marginBottom: 14,
     },
+    heroCard: {
+      backgroundColor: colors.primary,
+      borderRadius: 16,
+      padding: 20,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 16,
+    },
+    headerIcon: {
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      backgroundColor: "rgba(255,255,255,0.18)",
+      alignItems: "center",
+      justifyContent: "center",
+    },
     headerTitle: {
       fontFamily: "Inter_700Bold",
-      fontSize: 24,
+      fontSize: 20,
       color: "#ffffff",
-      marginBottom: 6,
+      marginBottom: 4,
+      flex: 1,
     },
     headerSub: {
       fontFamily: "Inter_400Regular",
-      fontSize: 14,
-      color: "rgba(255,255,255,0.7)",
+      fontSize: 13,
+      color: "rgba(255,255,255,0.8)",
     },
     body: {
       padding: 20,
@@ -150,7 +158,7 @@ export default function ActivateScreen() {
       overflow: "hidden",
     },
     payHeader: {
-      backgroundColor: colors.headerBg,
+      backgroundColor: colors.primary,
       paddingHorizontal: 16,
       paddingVertical: 12,
       flexDirection: "row",
@@ -377,13 +385,17 @@ export default function ActivateScreen() {
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <View style={styles.header}>
         <Pressable style={styles.backBtn} onPress={() => router.back()}>
-          <Feather name="arrow-left" size={18} color="#ffffff" />
+          <Feather name="arrow-left" size={18} color={colors.primary} />
         </Pressable>
-        <View style={styles.headerIcon}>
-          <Feather name="unlock" size={30} color="#ffffff" />
+        <View style={styles.heroCard}>
+          <View style={styles.headerIcon}>
+            <Feather name="unlock" size={26} color="#ffffff" />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.headerTitle}>Activate Your Account</Text>
+            <Text style={styles.headerSub}>Unlock surveys and start earning real money!</Text>
+          </View>
         </View>
-        <Text style={styles.headerTitle}>Activate Your Account</Text>
-        <Text style={styles.headerSub}>Unlock surveys and start earning real money!</Text>
       </View>
 
       <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
