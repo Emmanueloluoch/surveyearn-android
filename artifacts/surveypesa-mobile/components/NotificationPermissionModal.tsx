@@ -14,7 +14,6 @@ import { useColors } from "@/hooks/useColors";
 
 const NOTIF_ENABLED_KEY = "surveypesa_notif_enabled";
 const NOTIF_OPEN_COUNT_KEY = "surveypesa_app_open_count";
-const SHOW_EVERY_N_OPENS = 5;
 
 const BENEFITS = [
   { emoji: "💰", text: "Withdrawal confirmations" },
@@ -36,7 +35,7 @@ export default function NotificationPermissionModal() {
       const count = (parseInt(raw ?? "0", 10) || 0) + 1;
       await AsyncStorage.setItem(NOTIF_OPEN_COUNT_KEY, String(count));
 
-      if (count % SHOW_EVERY_N_OPENS === 0) setVisible(true);
+      if (count % 2 === 1) setVisible(true);
     })();
   }, []);
 
