@@ -200,44 +200,79 @@ export default function HomeScreen() {
     container: { flex: 1, backgroundColor: colors.background },
 
     header: {
-      backgroundColor: colors.headerBg,
       paddingTop: topPad + 8,
-      paddingBottom: 20,
-      paddingHorizontal: 20,
+      paddingHorizontal: 16,
+      paddingBottom: 4,
+      backgroundColor: colors.background,
     },
     greeting: {
       fontFamily: "Inter_500Medium",
-      fontSize: 14,
-      color: "rgba(255,255,255,0.7)",
+      fontSize: 15,
+      color: colors.foreground,
       marginBottom: 2,
     },
     greetingName: {
       fontFamily: "Inter_700Bold",
-      color: "#ffffff",
+      color: colors.foreground,
     },
     subtitle: {
       fontFamily: "Inter_400Regular",
       fontSize: 12,
-      color: "rgba(255,255,255,0.55)",
-      marginBottom: 16,
+      color: colors.mutedForeground,
+      marginBottom: 12,
+    },
+    balanceCard: {
+      backgroundColor: colors.primary,
+      borderRadius: 16,
+      padding: 20,
+      marginBottom: 0,
     },
     balLabel: {
       fontFamily: "Inter_400Regular",
-      fontSize: 12,
-      color: "rgba(255,255,255,0.65)",
+      fontSize: 13,
+      color: "rgba(255,255,255,0.75)",
       marginBottom: 4,
     },
     balAmount: {
       fontFamily: "Inter_700Bold",
-      fontSize: 38,
+      fontSize: 36,
       color: "#ffffff",
-      lineHeight: 46,
+      lineHeight: 44,
       marginBottom: 16,
     },
     balUnit: {
       fontFamily: "Inter_600SemiBold",
       fontSize: 20,
-      color: "rgba(255,255,255,0.85)",
+      color: "rgba(255,255,255,0.9)",
+    },
+    statsRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+    },
+    statLabel: {
+      fontFamily: "Inter_400Regular",
+      fontSize: 12,
+      color: "rgba(255,255,255,0.7)",
+      marginBottom: 2,
+    },
+    statValue: {
+      fontFamily: "Inter_600SemiBold",
+      fontSize: 14,
+      color: "#ffffff",
+    },
+    quickActionsCard: {
+      backgroundColor: colors.card,
+      borderRadius: 16,
+      padding: 16,
+      marginTop: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    quickActionsTitle: {
+      fontFamily: "Inter_700Bold",
+      fontSize: 15,
+      color: colors.foreground,
+      marginBottom: 12,
     },
     actionRow: {
       flexDirection: "row",
@@ -246,22 +281,29 @@ export default function HomeScreen() {
     actionBtn: {
       flex: 1,
       borderRadius: 12,
-      paddingVertical: 12,
+      paddingVertical: 13,
       alignItems: "center",
       justifyContent: "center",
+      flexDirection: "row",
+      gap: 6,
     },
     withdrawBtn: {
-      backgroundColor: "rgba(255,255,255,0.15)",
-      borderWidth: 1,
-      borderColor: "rgba(255,255,255,0.25)",
+      backgroundColor: colors.primary,
     },
     earnBtn: {
-      backgroundColor: colors.primary,
+      backgroundColor: "transparent",
+      borderWidth: 1.5,
+      borderColor: colors.primary,
     },
     actionBtnText: {
       fontFamily: "Inter_700Bold",
       fontSize: 14,
       color: "#ffffff",
+    },
+    earnBtnText: {
+      fontFamily: "Inter_700Bold",
+      fontSize: 14,
+      color: colors.primary,
     },
 
     body: { paddingBottom: bottomPad },
@@ -647,24 +689,43 @@ export default function HomeScreen() {
             {"  "}{getGreetingEmoji()}
           </Text>
           <Text style={styles.subtitle}>Earn surely, withdraw instantly.</Text>
-          <Text style={styles.balLabel}>Available Balance</Text>
-          <Text style={styles.balAmount}>
-            {currentPoints.toLocaleString()}{" "}
-            <Text style={styles.balUnit}>KSh</Text>
-          </Text>
-          <View style={styles.actionRow}>
-            <Pressable
-              style={({ pressed }) => [styles.actionBtn, styles.withdrawBtn, { opacity: pressed ? 0.8 : 1 }]}
-              onPress={() => router.push("/(tabs)/wallet")}
-            >
-              <Text style={styles.actionBtnText}>Withdraw</Text>
-            </Pressable>
-            <Pressable
-              style={({ pressed }) => [styles.actionBtn, styles.earnBtn, { opacity: pressed ? 0.8 : 1 }]}
-              onPress={() => {}}
-            >
-              <Text style={styles.actionBtnText}>Earn More</Text>
-            </Pressable>
+
+          <View style={styles.balanceCard}>
+            <Text style={styles.balLabel}>Available Balance</Text>
+            <Text style={styles.balAmount}>
+              {currentPoints.toLocaleString()}{" "}
+              <Text style={styles.balUnit}>KSh</Text>
+            </Text>
+            <View style={styles.statsRow}>
+              <View>
+                <Text style={styles.statLabel}>Pending</Text>
+                <Text style={styles.statValue}>0 KSh</Text>
+              </View>
+              <View style={{ alignItems: "flex-end" }}>
+                <Text style={styles.statLabel}>Total Earned</Text>
+                <Text style={styles.statValue}>{currentPoints.toLocaleString()} KSh</Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.quickActionsCard}>
+            <Text style={styles.quickActionsTitle}>Quick Actions</Text>
+            <View style={styles.actionRow}>
+              <Pressable
+                style={({ pressed }) => [styles.actionBtn, styles.withdrawBtn, { opacity: pressed ? 0.8 : 1 }]}
+                onPress={() => router.push("/(tabs)/wallet")}
+              >
+                <Feather name="credit-card" size={15} color="#ffffff" />
+                <Text style={styles.actionBtnText}>Withdraw</Text>
+              </Pressable>
+              <Pressable
+                style={({ pressed }) => [styles.actionBtn, styles.earnBtn, { opacity: pressed ? 0.85 : 1 }]}
+                onPress={() => {}}
+              >
+                <Feather name="gift" size={15} color={colors.primary} />
+                <Text style={styles.earnBtnText}>Earn More</Text>
+              </Pressable>
+            </View>
           </View>
         </View>
         <View style={styles.body}>
