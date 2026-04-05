@@ -12,7 +12,9 @@ import {
 
 import { useColors } from "@/hooks/useColors";
 
-const NOTIF_PROMPT_KEY = "surveypesa_notif_prompted";
+const NOTIF_ENABLED_KEY = "surveypesa_notif_enabled";
+const NOTIF_OPEN_COUNT_KEY = "surveypesa_app_open_count";
+const SHOW_EVERY_N_OPENS = 5;
 
 const BENEFITS = [
   { emoji: "💰", text: "Withdrawal confirmations" },
@@ -26,18 +28,22 @@ export default function NotificationPermissionModal() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    AsyncStorage.getItem(NOTIF_PROMPT_KEY).then((val) => {
-      if (!val) setVisible(true);
-    });
+    (async () => {
+      const enabled = await AsyncStorage.getItem(NOTIF_ENABLED_KEY);
+      if (enabled === "true") return;
+
+      const raw = await AsyncStorage.getItem(NOTIF_OPEN_COUNT_KEY);
+      const count = (parseInt(raw ?? "0", 10) || 0) + 1;
+      await AsyncStorage.setItem(NOTIF_OPEN_COUNT_KEY, String(count));
+
+      if (count % SHOW_EVERY_N_OPENS === 0) setVisible(true);
+    })();
   }, []);
 
-  const dismiss = async () => {
-    await AsyncStorage.setItem(NOTIF_PROMPT_KEY, "dismissed");
-    setVisible(false);
-  };
+  const dismiss = () => setVisible(false);
 
   const enable = async () => {
-    await AsyncStorage.setItem(NOTIF_PROMPT_KEY, "enabled");
+    await AsyncStorage.setItem(NOTIF_ENABLED_KEY, "true");
     setVisible(false);
     await Notifications.requestPermissionsAsync();
   };
