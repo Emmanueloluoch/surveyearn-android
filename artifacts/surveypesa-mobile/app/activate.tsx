@@ -37,8 +37,6 @@ export default function ActivateScreen() {
 
   const { mutateAsync: activateUser, isPending } = useActivateUser();
 
-  const topPad = Platform.OS === "web" ? 67 : insets.top;
-
   const handleCopyTill = async () => {
     await Clipboard.setStringAsync(TILL_NUMBER);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -71,18 +69,9 @@ export default function ActivateScreen() {
     container: { flex: 1, backgroundColor: colors.background },
     header: {
       backgroundColor: colors.background,
-      paddingTop: topPad + 8,
+      paddingTop: 12,
       paddingBottom: 4,
       paddingHorizontal: 16,
-    },
-    backBtn: {
-      width: 36,
-      height: 36,
-      borderRadius: 18,
-      backgroundColor: `${colors.primary}15`,
-      alignItems: "center",
-      justifyContent: "center",
-      marginBottom: 14,
     },
     heroCard: {
       backgroundColor: colors.primary,
@@ -383,22 +372,18 @@ export default function ActivateScreen() {
 
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios" ? "padding" : undefined}>
-      <View style={styles.header}>
-        <Pressable style={styles.backBtn} onPress={() => router.back()}>
-          <Feather name="arrow-left" size={18} color={colors.primary} />
-        </Pressable>
-        <View style={styles.heroCard}>
-          <View style={styles.headerIcon}>
-            <Feather name="unlock" size={26} color="#ffffff" />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.headerTitle}>Activate Your Account</Text>
-            <Text style={styles.headerSub}>Unlock surveys and start earning real money!</Text>
+      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+        <View style={styles.header}>
+          <View style={styles.heroCard}>
+            <View style={styles.headerIcon}>
+              <Feather name="unlock" size={26} color="#ffffff" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.headerTitle}>Activate Your Account</Text>
+              <Text style={styles.headerSub}>Unlock surveys and start earning real money!</Text>
+            </View>
           </View>
         </View>
-      </View>
-
-      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         <View style={styles.body}>
 
           {step === 1 && (
