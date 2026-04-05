@@ -24,6 +24,10 @@ import { useColors } from "@/hooks/useColors";
 const TILL_NUMBER = "5403204";
 const ACCOUNT_NAME = "EMMANUEL OLUOCH ODHIAMBO";
 const VIP_AMOUNT = 500;
+const VIP = "#7c3aed";
+const VIP_DARK = "#5b21b6";
+const VIP_LIGHT = "#f3e8ff";
+const VIP_BORDER = "#e9d5ff";
 
 export default function VipScreen() {
   const colors = useColors();
@@ -36,8 +40,6 @@ export default function VipScreen() {
   const [copiedTill, setCopiedTill] = useState(false);
 
   const { mutateAsync: upgradeToVip, isPending } = useUpgradeToVip();
-
-  const topPad = Platform.OS === "web" ? 67 : insets.top;
 
   const handleCopyTill = async () => {
     await Clipboard.setStringAsync(TILL_NUMBER);
@@ -69,53 +71,53 @@ export default function VipScreen() {
 
   const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
+
     header: {
-      paddingTop: topPad + 12,
-      paddingBottom: 24,
-      paddingHorizontal: 20,
-      background: "linear-gradient(135deg, #7c3aed, #4f46e5)",
-      backgroundColor: "#5b21b6",
+      backgroundColor: colors.background,
+      paddingTop: 12,
+      paddingBottom: 4,
+      paddingHorizontal: 16,
     },
-    backBtn: {
-      width: 36,
-      height: 36,
-      borderRadius: 18,
-      backgroundColor: "rgba(255,255,255,0.15)",
+    heroCard: {
+      backgroundColor: VIP,
+      borderRadius: 16,
+      padding: 20,
+      flexDirection: "row",
       alignItems: "center",
-      justifyContent: "center",
-      marginBottom: 16,
+      gap: 16,
     },
     headerIcon: {
-      width: 64,
-      height: 64,
-      borderRadius: 32,
-      backgroundColor: "rgba(255,255,255,0.15)",
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      backgroundColor: "rgba(255,255,255,0.18)",
       alignItems: "center",
       justifyContent: "center",
-      marginBottom: 14,
     },
     headerTitle: {
       fontFamily: "Inter_700Bold",
-      fontSize: 24,
+      fontSize: 20,
       color: "#ffffff",
-      marginBottom: 6,
+      marginBottom: 4,
     },
     headerSub: {
       fontFamily: "Inter_400Regular",
-      fontSize: 14,
-      color: "rgba(255,255,255,0.75)",
+      fontSize: 13,
+      color: "rgba(255,255,255,0.8)",
     },
+
     body: {
-      padding: 20,
+      padding: 16,
       paddingBottom: insets.bottom + 32,
-      gap: 16,
+      gap: 12,
     },
+
     perksCard: {
       backgroundColor: colors.card,
       borderRadius: 16,
       padding: 18,
       borderWidth: 1,
-      borderColor: "#e9d5ff",
+      borderColor: VIP_BORDER,
       gap: 12,
     },
     perksTitle: {
@@ -133,7 +135,7 @@ export default function VipScreen() {
       width: 28,
       height: 28,
       borderRadius: 14,
-      backgroundColor: "#f3e8ff",
+      backgroundColor: VIP_LIGHT,
       alignItems: "center",
       justifyContent: "center",
     },
@@ -143,6 +145,7 @@ export default function VipScreen() {
       color: colors.foreground,
       flex: 1,
     },
+
     payCard: {
       backgroundColor: colors.card,
       borderRadius: 16,
@@ -151,7 +154,7 @@ export default function VipScreen() {
       overflow: "hidden",
     },
     payHeader: {
-      backgroundColor: "#5b21b6",
+      backgroundColor: VIP,
       paddingHorizontal: 16,
       paddingVertical: 12,
       flexDirection: "row",
@@ -165,7 +168,7 @@ export default function VipScreen() {
       flex: 1,
     },
     payHeaderBadge: {
-      backgroundColor: "#7c3aed",
+      backgroundColor: VIP_DARK,
       borderRadius: 12,
       paddingHorizontal: 10,
       paddingVertical: 3,
@@ -199,11 +202,6 @@ export default function VipScreen() {
       fontSize: 13,
       color: colors.mutedForeground,
     },
-    tillValueRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 10,
-    },
     tillValue: {
       fontFamily: "Inter_700Bold",
       fontSize: 26,
@@ -214,7 +212,7 @@ export default function VipScreen() {
       flexDirection: "row",
       alignItems: "center",
       gap: 6,
-      backgroundColor: copiedTill ? colors.muted : "#f3e8ff",
+      backgroundColor: copiedTill ? colors.muted : VIP_LIGHT,
       paddingHorizontal: 12,
       paddingVertical: 6,
       borderRadius: 8,
@@ -222,7 +220,7 @@ export default function VipScreen() {
     copyBtnText: {
       fontFamily: "Inter_600SemiBold",
       fontSize: 12,
-      color: copiedTill ? colors.mutedForeground : "#7c3aed",
+      color: copiedTill ? colors.mutedForeground : VIP,
     },
     amountRow: {
       flexDirection: "row",
@@ -237,16 +235,11 @@ export default function VipScreen() {
     amountValue: {
       fontFamily: "Inter_700Bold",
       fontSize: 18,
-      color: "#7c3aed",
+      color: VIP,
     },
     divider: {
       height: 1,
       backgroundColor: colors.border,
-    },
-    nameRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
     },
     nameLabel: {
       fontFamily: "Inter_400Regular",
@@ -263,7 +256,7 @@ export default function VipScreen() {
       borderRadius: 12,
       padding: 12,
       borderWidth: 1,
-      borderColor: "#e9d5ff",
+      borderColor: VIP_BORDER,
     },
     noteText: {
       fontFamily: "Inter_400Regular",
@@ -272,7 +265,7 @@ export default function VipScreen() {
       lineHeight: 18,
     },
     nextBtn: {
-      backgroundColor: "#7c3aed",
+      backgroundColor: VIP,
       borderRadius: 14,
       paddingVertical: 16,
       alignItems: "center",
@@ -282,6 +275,7 @@ export default function VipScreen() {
       fontSize: 16,
       color: "#ffffff",
     },
+
     instrCard: {
       backgroundColor: colors.card,
       borderRadius: 16,
@@ -311,7 +305,7 @@ export default function VipScreen() {
       width: 22,
       height: 22,
       borderRadius: 11,
-      backgroundColor: "#7c3aed",
+      backgroundColor: VIP,
       alignItems: "center",
       justifyContent: "center",
     },
@@ -353,7 +347,7 @@ export default function VipScreen() {
       textAlignVertical: "top",
     },
     verifyBtn: {
-      backgroundColor: "#7c3aed",
+      backgroundColor: VIP,
       borderRadius: 14,
       paddingVertical: 16,
       flexDirection: "row",
@@ -370,18 +364,20 @@ export default function VipScreen() {
 
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios" ? "padding" : undefined}>
-      <View style={styles.header}>
-        <Pressable style={styles.backBtn} onPress={() => router.back()}>
-          <Feather name="arrow-left" size={18} color="#ffffff" />
-        </Pressable>
-        <View style={styles.headerIcon}>
-          <Text style={{ fontSize: 32 }}>👑</Text>
-        </View>
-        <Text style={styles.headerTitle}>VIP Access</Text>
-        <Text style={styles.headerSub}>Unlock unlimited surveys and earn more every day</Text>
-      </View>
-
       <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+
+        <View style={styles.header}>
+          <View style={styles.heroCard}>
+            <View style={styles.headerIcon}>
+              <Text style={{ fontSize: 28 }}>👑</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.headerTitle}>VIP Access</Text>
+              <Text style={styles.headerSub}>Unlock unlimited surveys and earn more every day</Text>
+            </View>
+          </View>
+        </View>
+
         <View style={styles.body}>
 
           {step === 1 && (
@@ -390,25 +386,25 @@ export default function VipScreen() {
                 <Text style={styles.perksTitle}>👑 VIP Member Benefits</Text>
                 <View style={styles.perkRow}>
                   <View style={styles.perkDot}>
-                    <Feather name="unlock" size={14} color="#7c3aed" />
+                    <Feather name="unlock" size={14} color={VIP} />
                   </View>
                   <Text style={styles.perkText}>Unlimited access to all surveys — no daily cap</Text>
                 </View>
                 <View style={styles.perkRow}>
                   <View style={styles.perkDot}>
-                    <Feather name="trending-up" size={14} color="#7c3aed" />
+                    <Feather name="trending-up" size={14} color={VIP} />
                   </View>
                   <Text style={styles.perkText}>Earn from every single survey in the app</Text>
                 </View>
                 <View style={styles.perkRow}>
                   <View style={styles.perkDot}>
-                    <Feather name="zap" size={14} color="#7c3aed" />
+                    <Feather name="zap" size={14} color={VIP} />
                   </View>
                   <Text style={styles.perkText}>Priority access to new high-reward surveys</Text>
                 </View>
                 <View style={styles.perkRow}>
                   <View style={styles.perkDot}>
-                    <Feather name="gift" size={14} color="#7c3aed" />
+                    <Feather name="gift" size={14} color={VIP} />
                   </View>
                   <Text style={styles.perkText}>KSh 500 added to your balance after verification</Text>
                 </View>
@@ -428,12 +424,13 @@ export default function VipScreen() {
                   <View style={styles.tillRow}>
                     <View>
                       <Text style={styles.tillLabel}>Till Number</Text>
-                      <View style={styles.tillValueRow}>
-                        <Text style={styles.tillValue}>{TILL_NUMBER}</Text>
-                      </View>
+                      <Text style={styles.tillValue}>{TILL_NUMBER}</Text>
                     </View>
-                    <Pressable style={styles.copyBtn} onPress={handleCopyTill}>
-                      <Feather name={copiedTill ? "check" : "copy"} size={13} color={copiedTill ? colors.mutedForeground : "#7c3aed"} />
+                    <Pressable
+                      style={({ pressed }) => [styles.copyBtn, { opacity: pressed ? 0.75 : 1 }]}
+                      onPress={handleCopyTill}
+                    >
+                      <Feather name={copiedTill ? "check" : "copy"} size={13} color={copiedTill ? colors.mutedForeground : VIP} />
                       <Text style={styles.copyBtnText}>{copiedTill ? "Copied!" : "Copy"}</Text>
                     </Pressable>
                   </View>
@@ -447,7 +444,7 @@ export default function VipScreen() {
 
                   <View style={styles.divider} />
 
-                  <View style={styles.nameRow}>
+                  <View style={styles.amountRow}>
                     <Text style={styles.nameLabel}>Till Name</Text>
                     <Text style={styles.nameValue}>{ACCOUNT_NAME}</Text>
                   </View>
@@ -528,7 +525,10 @@ export default function VipScreen() {
                 )}
               </Pressable>
 
-              <Pressable onPress={() => setStep(1)}>
+              <Pressable
+                style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
+                onPress={() => setStep(1)}
+              >
                 <Text style={{ fontFamily: "Inter_400Regular", fontSize: 13, color: colors.mutedForeground, textAlign: "center" }}>
                   ← Back to payment details
                 </Text>
