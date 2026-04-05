@@ -34,7 +34,7 @@ private val LightColors = lightColorScheme(
 )
 
 @Composable
-fun SurveyPesaTheme(content: @Composable () -> Unit) {
+fun SurveyEarnTheme(content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = LightColors,
         content = content

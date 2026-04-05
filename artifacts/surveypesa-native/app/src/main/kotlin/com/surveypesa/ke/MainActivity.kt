@@ -19,7 +19,7 @@ import com.surveypesa.ke.datastore.SessionStore
 import com.surveypesa.ke.models.User
 import com.surveypesa.ke.navigation.*
 import com.surveypesa.ke.screens.*
-import com.surveypesa.ke.ui.theme.SurveyPesaTheme
+import com.surveypesa.ke.ui.theme.SurveyEarnTheme
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -28,15 +28,15 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            SurveyPesaTheme {
-                SurveyPesaApp()
+            SurveyEarnTheme {
+                SurveyEarnApp()
             }
         }
     }
 }
 
 @Composable
-fun SurveyPesaApp() {
+fun SurveyEarnApp() {
     val context = LocalContext.current
     val sessionStore = remember { SessionStore(context) }
     val scope = rememberCoroutineScope()

@@ -24,7 +24,7 @@ Points to: `https://survey-creator-surveypesa-ke.replit.app/`
 cd artifacts/surveypesa-native
 git init
 git add .
-git commit -m "Initial SurveyPesa native app"
+git commit -m "Initial SurveyEarn native app"
 git remote add origin https://github.com/YOUR_USERNAME/surveypesa-native.git
 git push -u origin main
 ```

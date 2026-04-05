@@ -1,5 +1,5 @@
 /**
- * Compatibility endpoints matching the original SurveyPesa KE script.js API contract.
+ * Compatibility endpoints matching the original SurveyEarn script.js API contract.
  *
  * Original script uses:
  *   POST /signup   { name, phone }          → { success, userId, name, phone, points }
