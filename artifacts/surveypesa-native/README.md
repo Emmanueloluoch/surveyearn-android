@@ -1,4 +1,4 @@
-# SurveyPesa KE — Native Android App
+# SurveyEarn — Native Android App
 
 Native Android app built with Kotlin + Jetpack Compose.
 

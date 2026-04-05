@@ -35,11 +35,11 @@ const META: Record<string, SurveyMeta> = {
   "Digital Technology Usage Survey":  { category: "Technology",         company: "Kenya Tech Research",        icon: "cpu",         iconColor: "#6366f1", minutesPerQ: 0.65 },
   "Community & Social Life Survey":   { category: "Social",             company: "Kenya National Bureau",      icon: "users",       iconColor: "#14b8a6", minutesPerQ: 0.6 },
   "Healthcare Access in Kenya":       { category: "Health",             company: "Ministry of Health Kenya",   icon: "plus-circle", iconColor: "#ef4444", minutesPerQ: 0.7 },
-  "Welcome Bonus Survey":             { category: "Onboarding",         company: "SurveyPesa KE",              icon: "gift",        iconColor: "#00b33c", minutesPerQ: 0.5 },
+  "Welcome Bonus Survey":             { category: "Onboarding",         company: "SurveyEarn",              icon: "gift",        iconColor: "#00b33c", minutesPerQ: 0.5 },
 };
 
 export const FALLBACK_META: SurveyMeta = {
-  category: "General", company: "SurveyPesa KE", icon: "clipboard", iconColor: "#00b33c", minutesPerQ: 0.65,
+  category: "General", company: "SurveyEarn", icon: "clipboard", iconColor: "#00b33c", minutesPerQ: 0.65,
 };
 
 export function getSurveyMeta(title: string): SurveyMeta {

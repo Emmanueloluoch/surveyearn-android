@@ -117,7 +117,7 @@ fun AccountScreen(user: User, onLogout: () -> Unit) {
             }
 
             Spacer(Modifier.height(8.dp))
-            Text("SurveyPesa KE v1.0", color = TextMuted, fontSize = 12.sp,
+            Text("SurveyEarn v1.0", color = TextMuted, fontSize = 12.sp,
                 modifier = Modifier.align(Alignment.CenterHorizontally))
             Spacer(Modifier.height(80.dp))
         }

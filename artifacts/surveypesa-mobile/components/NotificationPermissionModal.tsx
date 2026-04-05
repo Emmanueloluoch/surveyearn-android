@@ -160,7 +160,7 @@ export default function NotificationPermissionModal() {
             <Feather name="bell" size={28} color={colors.primary} />
           </View>
 
-          <Text style={styles.title}>Stay Updated with SurveyPesa KE</Text>
+          <Text style={styles.title}>Stay Updated with SurveyEarn</Text>
           <Text style={styles.subtitle}>Get instant notifications for:</Text>
 
           <View style={styles.benefitsList}>

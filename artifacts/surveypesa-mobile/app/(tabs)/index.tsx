@@ -730,7 +730,7 @@ export default function HomeScreen() {
                 style={styles.appLogoCircle}
                 resizeMode="cover"
               />
-              <Text style={styles.appName}>SurveyPesa KE</Text>
+              <Text style={styles.appName}>SurveyEarn</Text>
             </View>
             <Pressable
               style={({ pressed }) => [styles.avatarBtn, { opacity: pressed ? 0.8 : 1 }]}

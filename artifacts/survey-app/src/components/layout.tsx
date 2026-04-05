@@ -53,7 +53,7 @@ export function Layout({ children }: { children: ReactNode }) {
             )}
             <div>
               <p className="text-xs" style={{ color: "rgba(255,255,255,0.6)" }}>
-                {user ? "Welcome back," : "SurveyPesa KE"}
+                {user ? "Welcome back," : "SurveyEarn"}
               </p>
               <p className="text-sm font-bold text-white leading-tight">
                 {user ? user.name : "Sign in to earn"}

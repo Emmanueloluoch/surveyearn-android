@@ -1,12 +1,12 @@
 #!/bin/bash
-# SurveyPesa KE — APK Builder
+# SurveyEarn — APK Builder
 # Run this from the Replit shell: bash artifacts/surveypesa-mobile/build-apk.sh
 
 set -e
 
 echo ""
 echo "======================================"
-echo "  SurveyPesa KE — APK Build Script"
+echo "  SurveyEarn — APK Build Script"
 echo "======================================"
 echo ""
 

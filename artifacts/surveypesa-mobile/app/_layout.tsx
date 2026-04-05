@@ -94,7 +94,7 @@ export default function RootLayout() {
         <View style={splash.iconCircle}>
           <Text style={splash.iconText}>💰</Text>
         </View>
-        <Text style={splash.appName}>SurveyPesa KE</Text>
+        <Text style={splash.appName}>SurveyEarn</Text>
         <Text style={splash.tagline}>Earn. Refer. Withdraw.</Text>
         <ActivityIndicator color="rgba(255,255,255,0.7)" size="small" style={{ marginTop: 32 }} />
       </View>

@@ -274,7 +274,7 @@ export default function AuthScreen() {
               style={styles.logo}
               resizeMode="cover"
             />
-            <Text style={styles.appName}>SurveyPesa KE</Text>
+            <Text style={styles.appName}>SurveyEarn</Text>
             <Text style={styles.tagline}>Earn KSh by completing surveys</Text>
           </View>
 
@@ -394,7 +394,7 @@ export default function AuthScreen() {
 
             <View style={styles.footerRow}>
               <Text style={styles.footerText}>
-                {mode === "login" ? "New to SurveyPesa?" : "Already have an account?"}
+                {mode === "login" ? "New to SurveyEarn?" : "Already have an account?"}
               </Text>
               <Pressable onPress={() => switchMode(mode === "login" ? "signup" : "login")}>
                 <Text style={styles.footerLink}>

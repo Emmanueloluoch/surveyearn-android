@@ -508,7 +508,7 @@ export default function AccountScreen() {
             </Pressable>
           </View>
 
-          <Text style={styles.joinedText}>SurveyPesa KE v1.0</Text>
+          <Text style={styles.joinedText}>SurveyEarn v1.0</Text>
         </View>
       </ScrollView>
 

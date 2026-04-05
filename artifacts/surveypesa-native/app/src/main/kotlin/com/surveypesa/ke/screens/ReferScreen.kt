@@ -28,7 +28,7 @@ fun ReferScreen(user: User) {
     val context = LocalContext.current
     var copied by remember { mutableStateOf(false) }
     val code = user.referralCode ?: "—"
-    val shareText = "Join SurveyPesa KE and earn money by completing surveys! Use my referral code $code when you sign up. Download now and start earning KSh today!"
+    val shareText = "Join SurveyEarn and earn money by completing surveys! Use my referral code $code when you sign up. Download now and start earning KSh today!"
 
     Column(
         modifier = Modifier
@@ -90,7 +90,7 @@ fun ReferScreen(user: User) {
                             type = "text/plain"
                             putExtra(Intent.EXTRA_TEXT, shareText)
                         }
-                        context.startActivity(Intent.createChooser(intent, "Share SurveyPesa KE"))
+                        context.startActivity(Intent.createChooser(intent, "Share SurveyEarn"))
                     },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp),

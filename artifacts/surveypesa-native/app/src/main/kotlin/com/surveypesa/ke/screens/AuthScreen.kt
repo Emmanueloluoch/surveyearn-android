@@ -91,7 +91,7 @@ fun AuthScreen(onAuthSuccess: (User) -> Unit) {
             }
 
             Spacer(Modifier.height(12.dp))
-            Text("SurveyPesa KE", color = White, fontSize = 26.sp, fontWeight = FontWeight.Bold)
+            Text("SurveyEarn", color = White, fontSize = 26.sp, fontWeight = FontWeight.Bold)
             Text("Earn KSh by completing surveys", color = Color(0xFFa8dba8), fontSize = 14.sp)
             Spacer(Modifier.height(32.dp))
 

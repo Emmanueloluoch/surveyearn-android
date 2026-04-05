@@ -9,7 +9,7 @@ let cachedWelcomeSurveyId: number | null = null;
 
 const WELCOME_QUESTIONS = [
   {
-    text: "How did you hear about SurveyPesa KE?",
+    text: "How did you hear about SurveyEarn?",
     type: "single_choice" as const,
     options: JSON.stringify(["Friend or family", "Social media", "Google search", "Online ad", "Other"]),
     orderIndex: 0,

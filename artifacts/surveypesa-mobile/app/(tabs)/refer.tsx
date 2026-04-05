@@ -33,7 +33,7 @@ export default function ReferScreen() {
     userData?.referralCode ?? user?.referralCode ?? "Loading...";
   const REFERRAL_REWARD = 200;
 
-  const shareMessage = `Join SurveyPesa KE and earn money by completing surveys! Use my referral code ${referralCode} when you sign up. Download now and start earning KSh today.`;
+  const shareMessage = `Join SurveyEarn and earn money by completing surveys! Use my referral code ${referralCode} when you sign up. Download now and start earning KSh today.`;
 
   const handleCopy = async () => {
     await Clipboard.setStringAsync(referralCode);

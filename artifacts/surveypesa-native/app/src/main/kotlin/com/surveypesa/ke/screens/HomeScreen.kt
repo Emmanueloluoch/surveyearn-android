@@ -72,7 +72,7 @@ fun HomeScreen(user: User, onSurveyClick: (Int) -> Unit, onAccountClick: () -> U
                             .background(Green, RoundedCornerShape(8.dp)),
                         contentAlignment = Alignment.Center
                     ) { Text("KSh", color = White, fontSize = 8.sp, fontWeight = FontWeight.Bold) }
-                    Text("SurveyPesa KE", color = White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text("SurveyEarn", color = White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 }
                 Box(
                     modifier = Modifier
