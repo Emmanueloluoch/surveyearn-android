@@ -579,6 +579,9 @@ components:
           type: integer
         name:
           type: string
+        email:
+          type: string
+          nullable: true
         phone:
           type: string
         points:
@@ -595,6 +598,7 @@ components:
       required:
         - id
         - name
+        - email
         - phone
         - points
         - isActivated
@@ -642,6 +646,9 @@ components:
           type: integer
         name:
           type: string
+        email:
+          type: string
+          nullable: true
         phone:
           type: string
         points:
@@ -657,6 +664,7 @@ components:
       required:
         - userId
         - name
+        - email
         - phone
         - points
         - isActivated

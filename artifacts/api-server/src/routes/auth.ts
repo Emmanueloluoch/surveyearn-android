@@ -76,6 +76,7 @@ router.post("/auth/signup", async (req, res): Promise<void> => {
   res.status(201).json({
     userId: user.id,
     name: user.name,
+    email: user.email ?? null,
     phone: user.phone,
     points: user.points,
     isActivated: user.isActivated,
@@ -130,6 +131,7 @@ router.post("/auth/login", async (req, res): Promise<void> => {
   res.json({
     userId: user.id,
     name: user.name,
+    email: user.email ?? null,
     phone: user.phone,
     points: user.points,
     isActivated: user.isActivated,

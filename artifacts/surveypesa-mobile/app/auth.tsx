@@ -69,6 +69,7 @@ export default function AuthScreen() {
       await login({
         userId: result.userId,
         name: result.name,
+        email: result.email ?? null,
         phone: result.phone,
         points: result.points,
         isActivated: result.isActivated ?? false,

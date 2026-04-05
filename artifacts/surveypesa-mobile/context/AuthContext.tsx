@@ -7,6 +7,7 @@ const AUTH_KEY = "surveypesa_auth";
 export interface AuthUser {
   userId: number;
   name: string;
+  email: string | null;
   phone: string;
   points: number;
   isActivated: boolean;

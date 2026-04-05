@@ -37,6 +37,7 @@ export const LoginBody = zod.object({
 export const LoginResponse = zod.object({
   userId: zod.number(),
   name: zod.string(),
+  email: zod.string().nullable(),
   phone: zod.string(),
   points: zod.number(),
   isActivated: zod.boolean(),
@@ -55,6 +56,7 @@ export const GetUserParams = zod.object({
 export const GetUserResponse = zod.object({
   id: zod.number(),
   name: zod.string(),
+  email: zod.string().nullable(),
   phone: zod.string(),
   points: zod.number(),
   isActivated: zod.boolean(),

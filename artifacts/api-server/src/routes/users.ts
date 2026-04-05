@@ -32,6 +32,7 @@ router.get("/users/:id", async (req, res): Promise<void> => {
   res.json({
     id: user.id,
     name: user.name,
+    email: user.email ?? null,
     phone: user.phone,
     points: user.points,
     isActivated: user.isActivated,
