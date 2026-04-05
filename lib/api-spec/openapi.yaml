@@ -587,6 +587,9 @@ components:
           type: boolean
         isVip:
           type: boolean
+        referralCode:
+          type: string
+          nullable: true
         createdAt:
           type: string
       required:
@@ -596,6 +599,7 @@ components:
         - points
         - isActivated
         - isVip
+        - referralCode
         - createdAt
 
     SignupBody:

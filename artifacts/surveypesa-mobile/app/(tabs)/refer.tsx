@@ -1,3 +1,4 @@
+import { useGetUser } from "@workspace/api-client-react";
 import { Feather } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
 import * as Haptics from "expo-haptics";
@@ -24,7 +25,12 @@ export default function ReferScreen() {
   const { user } = useAuth();
   const [copied, setCopied] = useState(false);
 
-  const referralCode = user?.referralCode ?? "XXXXXXXX";
+  const { data: userData } = useGetUser(user?.userId ?? 0, {
+    query: { enabled: !!user?.userId },
+  });
+
+  const referralCode =
+    userData?.referralCode ?? user?.referralCode ?? "Loading...";
   const REFERRAL_REWARD = 200;
 
   const shareMessage = `Join SurveyPesa KE and earn money by completing surveys! Use my referral code ${referralCode} when you sign up. Download now and start earning KSh today.`;

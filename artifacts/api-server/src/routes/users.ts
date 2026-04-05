@@ -36,6 +36,7 @@ router.get("/users/:id", async (req, res): Promise<void> => {
     points: user.points,
     isActivated: user.isActivated,
     isVip: user.isVip,
+    referralCode: user.referralCode ?? null,
     createdAt: user.createdAt,
   });
 });

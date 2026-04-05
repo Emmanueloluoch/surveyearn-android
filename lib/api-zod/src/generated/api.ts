@@ -59,6 +59,7 @@ export const GetUserResponse = zod.object({
   points: zod.number(),
   isActivated: zod.boolean(),
   isVip: zod.boolean(),
+  referralCode: zod.string().nullable(),
   createdAt: zod.string(),
 });
 
