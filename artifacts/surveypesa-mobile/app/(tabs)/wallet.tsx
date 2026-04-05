@@ -58,62 +58,75 @@ export default function WalletScreen() {
 
   const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
+
     header: {
-      backgroundColor: colors.headerBg,
-      paddingTop: topPad + 12,
-      paddingBottom: 28,
-      paddingHorizontal: 20,
+      paddingTop: topPad + 8,
+      paddingHorizontal: 16,
+      paddingBottom: 4,
+      backgroundColor: colors.background,
     },
     headerTitle: {
       fontFamily: "Inter_700Bold",
       fontSize: 22,
-      color: "#ffffff",
-      marginBottom: 20,
+      color: colors.foreground,
+      marginBottom: 2,
     },
-    balanceCard: {
-      backgroundColor: "rgba(255,255,255,0.14)",
-      borderRadius: 18,
-      padding: 22,
-      alignItems: "center",
-    },
-    balanceLabel: {
-      fontFamily: "Inter_400Regular",
-      fontSize: 13,
-      color: "rgba(255,255,255,0.65)",
-      marginBottom: 8,
-    },
-    balanceRow: {
-      flexDirection: "row",
-      alignItems: "flex-end",
-      gap: 6,
-    },
-    currency: {
-      fontFamily: "Inter_600SemiBold",
-      fontSize: 18,
-      color: "rgba(255,255,255,0.7)",
-      marginBottom: 4,
-    },
-    amount: {
-      fontFamily: "Inter_700Bold",
-      fontSize: 48,
-      color: "#ffffff",
-      lineHeight: 52,
-    },
-    minNote: {
+    headerSub: {
       fontFamily: "Inter_400Regular",
       fontSize: 12,
-      color: "rgba(255,255,255,0.5)",
-      marginTop: 10,
+      color: colors.mutedForeground,
+      marginBottom: 12,
     },
-    body: {
+
+    balanceCard: {
+      backgroundColor: colors.primary,
+      borderRadius: 16,
       padding: 20,
+    },
+    balLabel: {
+      fontFamily: "Inter_400Regular",
+      fontSize: 13,
+      color: "rgba(255,255,255,0.75)",
+      marginBottom: 4,
+    },
+    balAmount: {
+      fontFamily: "Inter_700Bold",
+      fontSize: 36,
+      color: "#ffffff",
+      lineHeight: 44,
+      marginBottom: 16,
+    },
+    balUnit: {
+      fontFamily: "Inter_600SemiBold",
+      fontSize: 20,
+      color: "rgba(255,255,255,0.9)",
+    },
+    statsRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+    },
+    statLabel: {
+      fontFamily: "Inter_400Regular",
+      fontSize: 12,
+      color: "rgba(255,255,255,0.7)",
+      marginBottom: 2,
+    },
+    statValue: {
+      fontFamily: "Inter_600SemiBold",
+      fontSize: 14,
+      color: "#ffffff",
+    },
+
+    body: {
+      padding: 16,
       paddingBottom: bottomPad,
+      gap: 12,
     },
     sectionLabel: {
       fontFamily: "Inter_700Bold",
       fontSize: 15,
       color: colors.foreground,
-      marginBottom: 12,
+      marginBottom: 8,
       marginTop: 4,
     },
     infoCard: {
@@ -122,7 +135,6 @@ export default function WalletScreen() {
       padding: 18,
       borderWidth: 1,
       borderColor: colors.border,
-      marginBottom: 20,
     },
     infoRow: {
       flexDirection: "row",
@@ -149,7 +161,6 @@ export default function WalletScreen() {
       borderRadius: 14,
       paddingVertical: 18,
       alignItems: "center",
-      marginBottom: 12,
     },
     withdrawBtnDisabled: {
       opacity: 0.4,
@@ -165,7 +176,6 @@ export default function WalletScreen() {
       padding: 14,
       borderWidth: 1,
       borderColor: "#a8dba8",
-      marginBottom: 16,
     },
     successText: {
       fontFamily: "Inter_500Medium",
@@ -194,80 +204,93 @@ export default function WalletScreen() {
   });
 
   return (
-    <View style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={{ paddingBottom: 0 }}
+    >
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Wallet</Text>
+        <Text style={styles.headerTitle}>💳 Your Wallet</Text>
+        <Text style={styles.headerSub}>Withdraw earnings to M-Pesa anytime.</Text>
+
         <View style={styles.balanceCard}>
-          <Text style={styles.balanceLabel}>Available Balance</Text>
-          <View style={styles.balanceRow}>
-            <Text style={styles.currency}>KSh</Text>
-            <Text style={styles.amount}>{currentPoints}</Text>
+          <Text style={styles.balLabel}>Available Balance</Text>
+          <Text style={styles.balAmount}>
+            {currentPoints.toLocaleString()}{" "}
+            <Text style={styles.balUnit}>KSh</Text>
+          </Text>
+          <View style={styles.statsRow}>
+            <View>
+              <Text style={styles.statLabel}>Pending</Text>
+              <Text style={styles.statValue}>0 KSh</Text>
+            </View>
+            <View style={{ alignItems: "flex-end" }}>
+              <Text style={styles.statLabel}>Total Earned</Text>
+              <Text style={styles.statValue}>{currentPoints.toLocaleString()} KSh</Text>
+            </View>
           </View>
-          <Text style={styles.minNote}>Minimum KSh 3,000 to withdraw via M-Pesa</Text>
         </View>
       </View>
 
-      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
-        <View style={styles.body}>
-          <Text style={styles.sectionLabel}>Withdraw to M-Pesa</Text>
+      <View style={styles.body}>
+        <Text style={styles.sectionLabel}>Withdraw to M-Pesa</Text>
 
-          <View style={styles.infoCard}>
-            <View style={styles.infoRow}>
-              <Text style={styles.infoKey}>Phone number</Text>
-              <Text style={styles.infoValue}>{user?.phone ?? "—"}</Text>
-            </View>
-            <View style={styles.infoRow}>
-              <Text style={styles.infoKey}>Amount to withdraw</Text>
-              <Text style={[styles.infoValue, { color: colors.primary }]}>
-                KSh {currentPoints}
-              </Text>
-            </View>
-            <View style={[styles.infoRow, styles.infoRowLast]}>
-              <Text style={styles.infoKey}>Status</Text>
-              <Text
-                style={[
-                  styles.infoValue,
-                  { color: canWithdraw ? colors.success : colors.destructive },
-                ]}
-              >
-                {canWithdraw ? "Eligible" : "Below Minimum"}
-              </Text>
-            </View>
+        <View style={styles.infoCard}>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoKey}>Phone number</Text>
+            <Text style={styles.infoValue}>{user?.phone ?? "—"}</Text>
           </View>
-
-          {lastMessage ? (
-            <View style={styles.successBox}>
-              <Text style={styles.successText}>{lastMessage}</Text>
-            </View>
-          ) : null}
-
-          <Pressable
-            style={[
-              styles.withdrawBtn,
-              (!canWithdraw || withdrawing) && styles.withdrawBtnDisabled,
-            ]}
-            onPress={handleWithdraw}
-            disabled={!canWithdraw || withdrawing}
-            testID="withdraw-btn"
-          >
-            {withdrawing ? (
-              <ActivityIndicator color="#ffffff" />
-            ) : (
-              <Text style={styles.withdrawText}>
-                Withdraw KSh {currentPoints} to M-Pesa
-              </Text>
-            )}
-          </Pressable>
-
-          <View style={styles.howItWorks}>
-            <Text style={styles.howTitle}>How it works</Text>
-            <Text style={styles.howStep}>1. Complete surveys to earn KSh rewards</Text>
-            <Text style={styles.howStep}>2. Accumulate at least KSh 3,000</Text>
-            <Text style={styles.howStep}>3. Tap Withdraw — funds sent to your M-Pesa</Text>
-            <Text style={styles.howStep}>4. Money arrives within minutes</Text>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoKey}>Amount to withdraw</Text>
+            <Text style={[styles.infoValue, { color: colors.primary }]}>
+              KSh {currentPoints.toLocaleString()}
+            </Text>
+          </View>
+          <View style={[styles.infoRow, styles.infoRowLast]}>
+            <Text style={styles.infoKey}>Status</Text>
+            <Text
+              style={[
+                styles.infoValue,
+                { color: canWithdraw ? colors.success : colors.destructive },
+              ]}
+            >
+              {canWithdraw ? "Eligible" : "Below Minimum"}
+            </Text>
           </View>
         </View>
-      </ScrollView>
-    </View>
+
+        {lastMessage ? (
+          <View style={styles.successBox}>
+            <Text style={styles.successText}>{lastMessage}</Text>
+          </View>
+        ) : null}
+
+        <Pressable
+          style={[
+            styles.withdrawBtn,
+            (!canWithdraw || withdrawing) && styles.withdrawBtnDisabled,
+          ]}
+          onPress={handleWithdraw}
+          disabled={!canWithdraw || withdrawing}
+          testID="withdraw-btn"
+        >
+          {withdrawing ? (
+            <ActivityIndicator color="#ffffff" />
+          ) : (
+            <Text style={styles.withdrawText}>
+              Withdraw KSh {currentPoints.toLocaleString()} to M-Pesa
+            </Text>
+          )}
+        </Pressable>
+
+        <View style={styles.howItWorks}>
+          <Text style={styles.howTitle}>How it works</Text>
+          <Text style={styles.howStep}>1. Complete surveys to earn KSh rewards</Text>
+          <Text style={styles.howStep}>2. Accumulate at least KSh 3,000</Text>
+          <Text style={styles.howStep}>3. Tap Withdraw — funds sent to your M-Pesa</Text>
+          <Text style={styles.howStep}>4. Money arrives within minutes</Text>
+        </View>
+      </View>
+    </ScrollView>
   );
 }

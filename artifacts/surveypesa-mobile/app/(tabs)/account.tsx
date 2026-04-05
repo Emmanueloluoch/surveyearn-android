@@ -53,20 +53,42 @@ export default function AccountScreen() {
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 + 84 : insets.bottom + 84;
 
+  const initials = user?.name
+    ? user.name
+        .split(" ")
+        .map((w) => w[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase()
+    : "?";
+
   const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
+
     header: {
-      backgroundColor: colors.headerBg,
-      paddingTop: topPad + 12,
-      paddingBottom: 30,
-      paddingHorizontal: 20,
+      paddingTop: topPad + 8,
+      paddingHorizontal: 16,
+      paddingBottom: 4,
+      backgroundColor: colors.background,
+    },
+    headerTitle: {
+      fontFamily: "Inter_700Bold",
+      fontSize: 22,
+      color: colors.foreground,
+      marginBottom: 12,
+    },
+
+    profileCard: {
+      backgroundColor: colors.primary,
+      borderRadius: 16,
+      padding: 20,
       alignItems: "center",
     },
     avatar: {
       width: 72,
       height: 72,
       borderRadius: 36,
-      backgroundColor: colors.primary,
+      backgroundColor: "rgba(255,255,255,0.22)",
       alignItems: "center",
       justifyContent: "center",
       marginBottom: 12,
@@ -80,74 +102,63 @@ export default function AccountScreen() {
       fontFamily: "Inter_700Bold",
       fontSize: 20,
       color: "#ffffff",
-      marginBottom: 4,
+      marginBottom: 2,
     },
     phoneText: {
       fontFamily: "Inter_400Regular",
-      fontSize: 14,
-      color: "rgba(255,255,255,0.65)",
+      fontSize: 13,
+      color: "rgba(255,255,255,0.75)",
       marginBottom: 12,
     },
     badgeRow: {
       flexDirection: "row",
       gap: 8,
-      marginTop: 4,
+      flexWrap: "wrap",
+      justifyContent: "center",
+      marginBottom: 16,
     },
-    badgePending: {
-      backgroundColor: "#ff6b35",
+    badge: {
       borderRadius: 20,
       paddingHorizontal: 12,
       paddingVertical: 4,
     },
-    badgePendingText: {
+    badgeText: {
       fontFamily: "Inter_600SemiBold",
       fontSize: 12,
       color: "#ffffff",
     },
-    badgeMember: {
+    balanceRow: {
+      width: "100%",
       backgroundColor: "rgba(255,255,255,0.15)",
-      borderRadius: 20,
-      paddingHorizontal: 12,
-      paddingVertical: 4,
-    },
-    badgeMemberText: {
-      fontFamily: "Inter_500Medium",
-      fontSize: 12,
-      color: "rgba(255,255,255,0.85)",
-    },
-    statsRow: {
-      flexDirection: "row",
-      gap: 12,
-      marginTop: 16,
-    },
-    statBox: {
-      flex: 1,
-      backgroundColor: "rgba(255,255,255,0.12)",
       borderRadius: 12,
-      padding: 14,
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      flexDirection: "row",
+      justifyContent: "space-between",
       alignItems: "center",
     },
-    statValue: {
+    balanceLabel: {
+      fontFamily: "Inter_400Regular",
+      fontSize: 13,
+      color: "rgba(255,255,255,0.75)",
+    },
+    balanceValue: {
       fontFamily: "Inter_700Bold",
-      fontSize: 22,
+      fontSize: 18,
       color: "#ffffff",
     },
-    statLabel: {
-      fontFamily: "Inter_400Regular",
-      fontSize: 12,
-      color: "rgba(255,255,255,0.6)",
-      marginTop: 2,
-    },
+
     body: {
-      padding: 20,
+      padding: 16,
       paddingBottom: bottomPad,
+      gap: 4,
     },
     sectionLabel: {
       fontFamily: "Inter_700Bold",
       fontSize: 13,
       color: colors.mutedForeground,
-      marginBottom: 8,
-      marginTop: 16,
+      marginBottom: 6,
+      marginTop: 14,
       textTransform: "uppercase",
       letterSpacing: 0.8,
     },
@@ -188,168 +199,165 @@ export default function AccountScreen() {
       fontSize: 13,
       color: colors.mutedForeground,
       textAlign: "center",
-      marginTop: 24,
+      marginTop: 20,
     },
   });
 
-  const initials = user?.name
-    ? user.name
-        .split(" ")
-        .map((w) => w[0])
-        .slice(0, 2)
-        .join("")
-        .toUpperCase()
-    : "?";
-
   return (
-    <View style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={{ paddingBottom: 0 }}
+    >
       <View style={styles.header}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>{initials}</Text>
-        </View>
-        <Text style={styles.displayName}>{user?.name ?? "User"}</Text>
-        <Text style={styles.phoneText}>{user?.phone ?? "—"}</Text>
-        <View style={styles.badgeRow}>
-          {user?.isVip ? (
-            <View style={[styles.badgePending, { backgroundColor: "#7c3aed" }]}>
-              <Text style={styles.badgePendingText}>👑 VIP Member</Text>
-            </View>
-          ) : user?.isActivated ? (
-            <>
-              <View style={[styles.badgePending, { backgroundColor: "#16a34a" }]}>
-                <Text style={styles.badgePendingText}>✓ Active Member</Text>
+        <Text style={styles.headerTitle}>👤 Profile</Text>
+
+        <View style={styles.profileCard}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>{initials}</Text>
+          </View>
+          <Text style={styles.displayName}>{user?.name ?? "User"}</Text>
+          <Text style={styles.phoneText}>{user?.phone ?? "—"}</Text>
+
+          <View style={styles.badgeRow}>
+            {user?.isVip ? (
+              <View style={[styles.badge, { backgroundColor: "#7c3aed" }]}>
+                <Text style={styles.badgeText}>👑 VIP Member</Text>
               </View>
-              <View style={styles.badgeMember}>
-                <Text style={styles.badgeMemberText}>6 surveys/day</Text>
-              </View>
-            </>
-          ) : (
-            <>
-              <View style={styles.badgePending}>
-                <Text style={styles.badgePendingText}>Activation Pending</Text>
-              </View>
-              <View style={styles.badgeMember}>
-                <Text style={styles.badgeMemberText}>Free Member</Text>
-              </View>
-            </>
-          )}
-        </View>
-        <View style={styles.statsRow}>
-          <View style={styles.statBox}>
-            <Text style={styles.statValue}>KSh {currentPoints}</Text>
-            <Text style={styles.statLabel}>Balance</Text>
+            ) : user?.isActivated ? (
+              <>
+                <View style={[styles.badge, { backgroundColor: "rgba(255,255,255,0.25)" }]}>
+                  <Text style={styles.badgeText}>✓ Active Member</Text>
+                </View>
+                <View style={[styles.badge, { backgroundColor: "rgba(255,255,255,0.15)" }]}>
+                  <Text style={styles.badgeText}>6 surveys/day</Text>
+                </View>
+              </>
+            ) : (
+              <>
+                <View style={[styles.badge, { backgroundColor: "#ff6b35" }]}>
+                  <Text style={styles.badgeText}>Activation Pending</Text>
+                </View>
+                <View style={[styles.badge, { backgroundColor: "rgba(255,255,255,0.15)" }]}>
+                  <Text style={styles.badgeText}>Free Member</Text>
+                </View>
+              </>
+            )}
+          </View>
+
+          <View style={styles.balanceRow}>
+            <Text style={styles.balanceLabel}>Current Balance</Text>
+            <Text style={styles.balanceValue}>KSh {currentPoints.toLocaleString()}</Text>
           </View>
         </View>
       </View>
 
-      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
-        <View style={styles.body}>
-          <Text style={styles.sectionLabel}>Settings</Text>
-          <View style={styles.menuCard}>
-            <View style={styles.menuItem}>
-              <View style={styles.menuIcon}>
-                <Feather name="phone" size={18} color={colors.mutedForeground} />
-              </View>
-              <Text style={styles.menuText}>{user?.phone ?? "—"}</Text>
+      <View style={styles.body}>
+        <Text style={styles.sectionLabel}>Settings</Text>
+        <View style={styles.menuCard}>
+          <View style={styles.menuItem}>
+            <View style={styles.menuIcon}>
+              <Feather name="phone" size={18} color={colors.mutedForeground} />
             </View>
-            <View style={[styles.menuItem, styles.menuItemLast]}>
-              <View style={styles.menuIcon}>
-                <Feather name="calendar" size={18} color={colors.mutedForeground} />
-              </View>
-              <Text style={styles.menuText}>Member since {joinDate}</Text>
+            <Text style={styles.menuText}>{user?.phone ?? "—"}</Text>
+          </View>
+          <View style={[styles.menuItem, styles.menuItemLast]}>
+            <View style={styles.menuIcon}>
+              <Feather name="calendar" size={18} color={colors.mutedForeground} />
             </View>
+            <Text style={styles.menuText}>Member since {joinDate}</Text>
           </View>
-
-          {!user?.isActivated && (
-            <>
-              <Text style={styles.sectionLabel}>Activation</Text>
-              <View style={styles.menuCard}>
-                <Pressable
-                  style={[styles.menuItem, styles.menuItemLast]}
-                  onPress={() => router.push("/activate")}
-                >
-                  <View style={styles.menuIcon}>
-                    <Feather name="unlock" size={18} color="#ff6b35" />
-                  </View>
-                  <View style={{ flex: 1, marginLeft: 12 }}>
-                    <Text style={[styles.menuText, { color: "#ff6b35", marginLeft: 0 }]}>Activate Account</Text>
-                    <Text style={{ fontFamily: "Inter_400Regular", fontSize: 12, color: colors.mutedForeground }}>
-                      Pay KSh 150 via M-Pesa · Unlock 6 daily surveys
-                    </Text>
-                  </View>
-                  <Feather name="chevron-right" size={16} color="#ff6b35" />
-                </Pressable>
-              </View>
-            </>
-          )}
-
-          {user?.isActivated && !user?.isVip && (
-            <>
-              <Text style={styles.sectionLabel}>VIP Access</Text>
-              <View style={styles.menuCard}>
-                <Pressable
-                  style={[styles.menuItem, styles.menuItemLast]}
-                  onPress={() => router.push("/vip")}
-                >
-                  <View style={styles.menuIcon}>
-                    <Text style={{ fontSize: 18 }}>👑</Text>
-                  </View>
-                  <View style={{ flex: 1, marginLeft: 12 }}>
-                    <Text style={[styles.menuText, { color: "#7c3aed", marginLeft: 0 }]}>Upgrade to VIP</Text>
-                    <Text style={{ fontFamily: "Inter_400Regular", fontSize: 12, color: colors.mutedForeground }}>
-                      Pay KSh 500 via M-Pesa · Unlimited surveys
-                    </Text>
-                  </View>
-                  <Feather name="chevron-right" size={16} color="#7c3aed" />
-                </Pressable>
-              </View>
-            </>
-          )}
-
-          <Text style={styles.sectionLabel}>About</Text>
-          <View style={styles.menuCard}>
-            <Pressable
-              style={styles.menuItem}
-              onPress={() => router.push("/(tabs)/refer")}
-            >
-              <View style={styles.menuIcon}>
-                <Feather name="gift" size={18} color={colors.primary} />
-              </View>
-              <Text style={[styles.menuText, { color: colors.primary }]}>
-                Refer a Friend
-              </Text>
-              <Feather name="chevron-right" size={16} color={colors.mutedForeground} />
-            </Pressable>
-            <Pressable
-              style={[styles.menuItem, styles.menuItemLast]}
-              onPress={() => router.push("/(tabs)/wallet")}
-            >
-              <View style={styles.menuIcon}>
-                <Feather name="credit-card" size={18} color={colors.primary} />
-              </View>
-              <Text style={[styles.menuText, { color: colors.primary }]}>
-                Withdraw Earnings
-              </Text>
-              <Feather name="chevron-right" size={16} color={colors.mutedForeground} />
-            </Pressable>
-          </View>
-
-          <Text style={styles.sectionLabel}>Account</Text>
-          <View style={styles.menuCard}>
-            <Pressable
-              style={[styles.menuItem, styles.menuItemLast]}
-              onPress={handleLogout}
-            >
-              <View style={styles.menuIcon}>
-                <Feather name="log-out" size={18} color={colors.destructive} />
-              </View>
-              <Text style={[styles.menuText, styles.menuTextDanger]}>Log Out</Text>
-            </Pressable>
-          </View>
-
-          <Text style={styles.joinedText}>SurveyPesa KE v1.0</Text>
         </View>
-      </ScrollView>
-    </View>
+
+        {!user?.isActivated && (
+          <>
+            <Text style={styles.sectionLabel}>Activation</Text>
+            <View style={styles.menuCard}>
+              <Pressable
+                style={[styles.menuItem, styles.menuItemLast]}
+                onPress={() => router.push("/activate")}
+              >
+                <View style={styles.menuIcon}>
+                  <Feather name="unlock" size={18} color="#ff6b35" />
+                </View>
+                <View style={{ flex: 1, marginLeft: 12 }}>
+                  <Text style={[styles.menuText, { color: "#ff6b35", marginLeft: 0 }]}>Activate Account</Text>
+                  <Text style={{ fontFamily: "Inter_400Regular", fontSize: 12, color: colors.mutedForeground }}>
+                    Pay KSh 150 via M-Pesa · Unlock 6 daily surveys
+                  </Text>
+                </View>
+                <Feather name="chevron-right" size={16} color="#ff6b35" />
+              </Pressable>
+            </View>
+          </>
+        )}
+
+        {user?.isActivated && !user?.isVip && (
+          <>
+            <Text style={styles.sectionLabel}>VIP Access</Text>
+            <View style={styles.menuCard}>
+              <Pressable
+                style={[styles.menuItem, styles.menuItemLast]}
+                onPress={() => router.push("/vip")}
+              >
+                <View style={styles.menuIcon}>
+                  <Text style={{ fontSize: 18 }}>👑</Text>
+                </View>
+                <View style={{ flex: 1, marginLeft: 12 }}>
+                  <Text style={[styles.menuText, { color: "#7c3aed", marginLeft: 0 }]}>Upgrade to VIP</Text>
+                  <Text style={{ fontFamily: "Inter_400Regular", fontSize: 12, color: colors.mutedForeground }}>
+                    Pay KSh 500 via M-Pesa · Unlimited surveys
+                  </Text>
+                </View>
+                <Feather name="chevron-right" size={16} color="#7c3aed" />
+              </Pressable>
+            </View>
+          </>
+        )}
+
+        <Text style={styles.sectionLabel}>About</Text>
+        <View style={styles.menuCard}>
+          <Pressable
+            style={styles.menuItem}
+            onPress={() => router.push("/(tabs)/refer")}
+          >
+            <View style={styles.menuIcon}>
+              <Feather name="gift" size={18} color={colors.primary} />
+            </View>
+            <Text style={[styles.menuText, { color: colors.primary }]}>
+              Refer a Friend
+            </Text>
+            <Feather name="chevron-right" size={16} color={colors.mutedForeground} />
+          </Pressable>
+          <Pressable
+            style={[styles.menuItem, styles.menuItemLast]}
+            onPress={() => router.push("/(tabs)/wallet")}
+          >
+            <View style={styles.menuIcon}>
+              <Feather name="credit-card" size={18} color={colors.primary} />
+            </View>
+            <Text style={[styles.menuText, { color: colors.primary }]}>
+              Withdraw Earnings
+            </Text>
+            <Feather name="chevron-right" size={16} color={colors.mutedForeground} />
+          </Pressable>
+        </View>
+
+        <Text style={styles.sectionLabel}>Account</Text>
+        <View style={styles.menuCard}>
+          <Pressable
+            style={[styles.menuItem, styles.menuItemLast]}
+            onPress={handleLogout}
+          >
+            <View style={styles.menuIcon}>
+              <Feather name="log-out" size={18} color={colors.destructive} />
+            </View>
+            <Text style={[styles.menuText, styles.menuTextDanger]}>Log Out</Text>
+          </Pressable>
+        </View>
+
+        <Text style={styles.joinedText}>SurveyPesa KE v1.0</Text>
+      </View>
+    </ScrollView>
   );
 }

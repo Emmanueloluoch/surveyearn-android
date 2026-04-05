@@ -25,7 +25,6 @@ export default function ReferScreen() {
   const [copied, setCopied] = useState(false);
 
   const referralCode = user?.referralCode ?? "XXXXXXXX";
-
   const REFERRAL_REWARD = 200;
 
   const shareMessage = `Join SurveyPesa KE and earn money by completing surveys! Use my referral code ${referralCode} when you sign up. Download now and start earning KSh today.`;
@@ -51,45 +50,77 @@ export default function ReferScreen() {
 
   const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
+
     header: {
-      backgroundColor: colors.headerBg,
-      paddingTop: topPad + 12,
-      paddingBottom: 24,
-      paddingHorizontal: 20,
-    },
-    headerRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 10,
-    },
-    headerIcon: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
-      backgroundColor: "rgba(255,255,255,0.15)",
-      alignItems: "center",
-      justifyContent: "center",
+      paddingTop: topPad + 8,
+      paddingHorizontal: 16,
+      paddingBottom: 4,
+      backgroundColor: colors.background,
     },
     headerTitle: {
       fontFamily: "Inter_700Bold",
       fontSize: 22,
-      color: "#ffffff",
+      color: colors.foreground,
+      marginBottom: 2,
     },
     headerSub: {
       fontFamily: "Inter_400Regular",
-      fontSize: 13,
-      color: "rgba(255,255,255,0.65)",
-      marginTop: 6,
+      fontSize: 12,
+      color: colors.mutedForeground,
+      marginBottom: 12,
     },
-    body: {
+
+    rewardCard: {
+      backgroundColor: colors.primary,
+      borderRadius: 16,
       padding: 20,
-      paddingBottom: bottomPad,
+      flexDirection: "row",
+      alignItems: "center",
       gap: 16,
     },
+    rewardIconCircle: {
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      backgroundColor: "rgba(255,255,255,0.18)",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    rewardLabel: {
+      fontFamily: "Inter_400Regular",
+      fontSize: 12,
+      color: "rgba(255,255,255,0.75)",
+      marginBottom: 2,
+    },
+    rewardAmount: {
+      fontFamily: "Inter_700Bold",
+      fontSize: 34,
+      color: "#ffffff",
+      lineHeight: 40,
+    },
+    rewardNote: {
+      fontFamily: "Inter_400Regular",
+      fontSize: 12,
+      color: "rgba(255,255,255,0.7)",
+      marginTop: 2,
+    },
+
+    body: {
+      padding: 16,
+      paddingBottom: bottomPad,
+      gap: 12,
+    },
+    sectionTitle: {
+      fontFamily: "Inter_700Bold",
+      fontSize: 15,
+      color: colors.foreground,
+      marginBottom: 8,
+    },
+
     codeCard: {
       backgroundColor: colors.card,
-      borderRadius: 18,
-      padding: 24,
+      borderRadius: 16,
+      padding: 20,
       alignItems: "center",
       borderWidth: 1,
       borderColor: colors.border,
@@ -130,81 +161,44 @@ export default function ReferScreen() {
       fontSize: 14,
       color: copied ? colors.mutedForeground : colors.primary,
     },
-    sectionTitle: {
-      fontFamily: "Inter_700Bold",
-      fontSize: 15,
-      color: colors.foreground,
-      marginBottom: 12,
-    },
-    quickActionsRow: {
-      flexDirection: "row",
-      gap: 12,
-    },
-    actionBtn: {
-      flex: 1,
+
+    howCard: {
       backgroundColor: colors.card,
-      borderRadius: 14,
-      padding: 16,
-      alignItems: "center",
+      borderRadius: 16,
+      padding: 18,
       borderWidth: 1,
       borderColor: colors.border,
-      gap: 8,
+      gap: 14,
     },
-    actionBtnIcon: {
-      width: 44,
-      height: 44,
-      borderRadius: 22,
-      backgroundColor: `${colors.primary}18`,
+    howStep: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 12,
+    },
+    howStepBadge: {
+      width: 28,
+      height: 28,
+      borderRadius: 14,
+      backgroundColor: colors.primary,
       alignItems: "center",
       justifyContent: "center",
     },
-    actionBtnText: {
-      fontFamily: "Inter_600SemiBold",
-      fontSize: 13,
-      color: colors.primary,
-    },
-    progressCard: {
-      backgroundColor: colors.card,
-      borderRadius: 14,
-      padding: 18,
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    progressMeta: {
-      fontFamily: "Inter_400Regular",
-      fontSize: 13,
-      color: colors.mutedForeground,
-      marginBottom: 12,
-    },
-    progressMetaBold: {
-      fontFamily: "Inter_600SemiBold",
-      color: colors.foreground,
-    },
-    progressTrack: {
-      height: 8,
-      backgroundColor: colors.muted,
-      borderRadius: 4,
-      overflow: "hidden",
-    },
-    progressFill: {
-      height: 8,
-      backgroundColor: colors.primary,
-      borderRadius: 4,
-    },
-    progressFooter: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      marginTop: 8,
-    },
-    progressFooterText: {
-      fontFamily: "Inter_400Regular",
+    howStepNum: {
+      fontFamily: "Inter_700Bold",
       fontSize: 12,
-      color: colors.mutedForeground,
+      color: "#ffffff",
     },
+    howStepText: {
+      fontFamily: "Inter_400Regular",
+      fontSize: 14,
+      color: colors.foreground,
+      flex: 1,
+    },
+
     referralsCard: {
       backgroundColor: colors.card,
-      borderRadius: 14,
-      padding: 18,
+      borderRadius: 16,
+      padding: 20,
       borderWidth: 1,
       borderColor: colors.border,
       alignItems: "center",
@@ -220,6 +214,45 @@ export default function ReferScreen() {
       fontSize: 14,
       color: colors.mutedForeground,
     },
+    referralsNote: {
+      fontFamily: "Inter_400Regular",
+      fontSize: 13,
+      color: colors.mutedForeground,
+      marginTop: 4,
+    },
+
+    quickActionsRow: {
+      flexDirection: "row",
+      gap: 12,
+    },
+    actionBtn: {
+      flex: 1,
+      borderRadius: 14,
+      paddingVertical: 14,
+      alignItems: "center",
+      justifyContent: "center",
+      flexDirection: "row",
+      gap: 6,
+    },
+    withdrawActionBtn: {
+      backgroundColor: colors.primary,
+    },
+    earnActionBtn: {
+      backgroundColor: "transparent",
+      borderWidth: 1.5,
+      borderColor: colors.primary,
+    },
+    withdrawActionText: {
+      fontFamily: "Inter_700Bold",
+      fontSize: 14,
+      color: "#ffffff",
+    },
+    earnActionText: {
+      fontFamily: "Inter_700Bold",
+      fontSize: 14,
+      color: colors.primary,
+    },
+
     shareBtn: {
       backgroundColor: colors.primary,
       borderRadius: 14,
@@ -237,139 +270,96 @@ export default function ReferScreen() {
   });
 
   return (
-    <View style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={{ paddingBottom: 0 }}
+    >
       <View style={styles.header}>
-        <View style={styles.headerRow}>
-          <View style={styles.headerIcon}>
-            <Text style={{ fontSize: 20 }}>🎁</Text>
-          </View>
-          <Text style={styles.headerTitle}>Referral Program</Text>
-        </View>
+        <Text style={styles.headerTitle}>🎁 Referral Program</Text>
         <Text style={styles.headerSub}>
-          Earn <Text style={{ fontFamily: "Inter_700Bold", color: "#ffffff" }}>KSh {REFERRAL_REWARD}</Text> for every friend who signs up and activates
+          Earn KSh {REFERRAL_REWARD} for every friend who signs up and activates.
         </Text>
+
+        <View style={styles.rewardCard}>
+          <View style={styles.rewardIconCircle}>
+            <Text style={{ fontSize: 26 }}>💸</Text>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.rewardLabel}>You earn per referral</Text>
+            <Text style={styles.rewardAmount}>KSh {REFERRAL_REWARD}</Text>
+            <Text style={styles.rewardNote}>Paid instantly when your friend activates</Text>
+          </View>
+        </View>
       </View>
 
-      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
-        <View style={styles.body}>
-
-          {/* REWARD BANNER */}
-          <View style={{
-            backgroundColor: colors.card,
-            borderRadius: 18,
-            padding: 20,
-            borderWidth: 1,
-            borderColor: colors.border,
-            flexDirection: "row",
-            alignItems: "center",
-            gap: 16,
-          }}>
-            <View style={{
-              width: 64, height: 64, borderRadius: 32,
-              backgroundColor: `${colors.primary}15`,
-              alignItems: "center", justifyContent: "center",
-            }}>
-              <Text style={{ fontSize: 30 }}>💸</Text>
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={{ fontFamily: "Inter_400Regular", fontSize: 13, color: colors.mutedForeground, marginBottom: 2 }}>
-                You earn per referral
-              </Text>
-              <Text style={{ fontFamily: "Inter_700Bold", fontSize: 36, color: colors.primary, lineHeight: 40 }}>
-                KSh {REFERRAL_REWARD}
-              </Text>
-              <Text style={{ fontFamily: "Inter_400Regular", fontSize: 12, color: colors.mutedForeground, marginTop: 2 }}>
-                Paid instantly when your friend activates
-              </Text>
-            </View>
+      <View style={styles.body}>
+        <View style={styles.codeCard}>
+          <Text style={styles.codeLabel}>Your Referral Code</Text>
+          <View style={styles.codeBox}>
+            <Text style={styles.code}>{referralCode}</Text>
           </View>
-
-          {/* REFERRAL CODE */}
-          <View style={styles.codeCard}>
-            <Text style={styles.codeLabel}>Your Referral Code</Text>
-            <View style={styles.codeBox}>
-              <Text style={styles.code}>{referralCode}</Text>
-            </View>
-            <Pressable style={styles.copyBtn} onPress={handleCopy}>
-              <Feather
-                name={copied ? "check" : "copy"}
-                size={16}
-                color={copied ? colors.mutedForeground : colors.primary}
-              />
-              <Text style={styles.copyText}>{copied ? "Copied!" : "Copy Code"}</Text>
-            </Pressable>
-          </View>
-
-          {/* HOW IT WORKS */}
-          <View style={{
-            backgroundColor: colors.muted,
-            borderRadius: 14,
-            padding: 16,
-            gap: 12,
-          }}>
-            <Text style={styles.sectionTitle}>How it works</Text>
-            {[
-              { step: "1", text: `Share your code with friends` },
-              { step: "2", text: `Friend signs up using your code` },
-              { step: "3", text: `Friend activates their account (KSh 150)` },
-              { step: "4", text: `You instantly earn KSh ${REFERRAL_REWARD} to your balance` },
-            ].map(({ step, text }) => (
-              <View key={step} style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-                <View style={{
-                  width: 28, height: 28, borderRadius: 14,
-                  backgroundColor: colors.primary,
-                  alignItems: "center", justifyContent: "center",
-                }}>
-                  <Text style={{ fontFamily: "Inter_700Bold", fontSize: 12, color: "#ffffff" }}>{step}</Text>
-                </View>
-                <Text style={{ fontFamily: "Inter_400Regular", fontSize: 14, color: colors.foreground, flex: 1 }}>{text}</Text>
-              </View>
-            ))}
-          </View>
-
-          {/* YOUR REFERRALS */}
-          <View>
-            <Text style={styles.sectionTitle}>Your Referrals</Text>
-            <View style={styles.referralsCard}>
-              <Text style={styles.referralsCount}>0</Text>
-              <Text style={styles.referralsLabel}>Friends referred so far</Text>
-              <Text style={{ fontFamily: "Inter_400Regular", fontSize: 13, color: colors.mutedForeground, marginTop: 4 }}>
-                Earn KSh {REFERRAL_REWARD} for each one
-              </Text>
-            </View>
-          </View>
-
-          {/* QUICK ACTIONS */}
-          <View style={styles.quickActionsRow}>
-            <Pressable
-              style={({ pressed }) => [styles.actionBtn, { opacity: pressed ? 0.8 : 1 }]}
-              onPress={() => router.push("/(tabs)/wallet")}
-            >
-              <View style={styles.actionBtnIcon}>
-                <Feather name="arrow-down-circle" size={22} color={colors.primary} />
-              </View>
-              <Text style={styles.actionBtnText}>Withdraw</Text>
-            </Pressable>
-            <Pressable
-              style={({ pressed }) => [styles.actionBtn, { opacity: pressed ? 0.8 : 1 }]}
-              onPress={() => router.push("/(tabs)")}
-            >
-              <View style={styles.actionBtnIcon}>
-                <Feather name="trending-up" size={22} color={colors.primary} />
-              </View>
-              <Text style={styles.actionBtnText}>Earn More</Text>
-            </Pressable>
-          </View>
-
-          <Pressable
-            style={({ pressed }) => [styles.shareBtn, { opacity: pressed ? 0.85 : 1 }]}
-            onPress={handleShare}
-          >
-            <Feather name="share-2" size={18} color="#ffffff" />
-            <Text style={styles.shareText}>Share & Earn KSh {REFERRAL_REWARD}</Text>
+          <Pressable style={styles.copyBtn} onPress={handleCopy}>
+            <Feather
+              name={copied ? "check" : "copy"}
+              size={16}
+              color={copied ? colors.mutedForeground : colors.primary}
+            />
+            <Text style={styles.copyText}>{copied ? "Copied!" : "Copy Code"}</Text>
           </Pressable>
         </View>
-      </ScrollView>
-    </View>
+
+        <Text style={styles.sectionTitle}>How it works</Text>
+        <View style={styles.howCard}>
+          {[
+            { step: "1", text: "Share your code with friends" },
+            { step: "2", text: "Friend signs up using your code" },
+            { step: "3", text: "Friend activates their account (KSh 150)" },
+            { step: "4", text: `You instantly earn KSh ${REFERRAL_REWARD} to your balance` },
+          ].map(({ step, text }) => (
+            <View key={step} style={styles.howStep}>
+              <View style={styles.howStepBadge}>
+                <Text style={styles.howStepNum}>{step}</Text>
+              </View>
+              <Text style={styles.howStepText}>{text}</Text>
+            </View>
+          ))}
+        </View>
+
+        <Text style={styles.sectionTitle}>Your Referrals</Text>
+        <View style={styles.referralsCard}>
+          <Text style={styles.referralsCount}>0</Text>
+          <Text style={styles.referralsLabel}>Friends referred so far</Text>
+          <Text style={styles.referralsNote}>
+            Earn KSh {REFERRAL_REWARD} for each one
+          </Text>
+        </View>
+
+        <View style={styles.quickActionsRow}>
+          <Pressable
+            style={({ pressed }) => [styles.actionBtn, styles.withdrawActionBtn, { opacity: pressed ? 0.8 : 1 }]}
+            onPress={() => router.push("/(tabs)/wallet")}
+          >
+            <Feather name="credit-card" size={15} color="#ffffff" />
+            <Text style={styles.withdrawActionText}>Withdraw</Text>
+          </Pressable>
+          <Pressable
+            style={({ pressed }) => [styles.actionBtn, styles.earnActionBtn, { opacity: pressed ? 0.85 : 1 }]}
+            onPress={() => router.push("/(tabs)")}
+          >
+            <Feather name="trending-up" size={15} color={colors.primary} />
+            <Text style={styles.earnActionText}>Earn More</Text>
+          </Pressable>
+        </View>
+
+        <Pressable
+          style={({ pressed }) => [styles.shareBtn, { opacity: pressed ? 0.85 : 1 }]}
+          onPress={handleShare}
+        >
+          <Feather name="share-2" size={18} color="#ffffff" />
+          <Text style={styles.shareText}>Share &amp; Earn KSh {REFERRAL_REWARD}</Text>
+        </Pressable>
+      </View>
+    </ScrollView>
   );
 }
