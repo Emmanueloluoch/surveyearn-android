@@ -9,11 +9,8 @@ on:
 
 jobs:
   build:
-    name: Build APK
+    name: Build Debug APK
     runs-on: ubuntu-latest
-
-    env:
-      HAS_KEYSTORE: ${{ secrets.KEYSTORE_BASE64 != '' }}
 
     steps:
       - name: Checkout code
@@ -25,15 +22,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.7'
-
-      - name: Cache Gradle files
+      - name: Cache Gradle
         uses: actions/cache@v4
         with:
           path: |
@@ -45,48 +34,12 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
 
-      - name: Decode keystore
-        if: env.HAS_KEYSTORE == 'true'
-        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > app/keystore.jks
-
       - name: Build debug APK
-        if: env.HAS_KEYSTORE != 'true'
-        run: ./gradlew assembleDebug --no-daemon --stacktrace
+        run: ./gradlew assembleDebug --no-daemon
 
-      - name: Build release APK
-        if: env.HAS_KEYSTORE == 'true'
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: ./gradlew assembleRelease --no-daemon --stacktrace
-
-      - name: Upload debug APK
-        if: env.HAS_KEYSTORE != 'true'
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: SurveyEarn-debug
           path: app/build/outputs/apk/debug/*.apk
           retention-days: 30
-
-      - name: Upload release APK
-        if: env.HAS_KEYSTORE == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: SurveyEarn-release
-          path: app/build/outputs/apk/release/*.apk
-          retention-days: 30
-
-      - name: Create GitHub Release
-        if: >-
-          env.HAS_KEYSTORE == 'true' &&
-          github.event_name == 'push' &&
-          (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: v${{ github.run_number }}
-          name: SurveyEarn v${{ github.run_number }}
-          files: app/build/outputs/apk/release/*.apk
-          generate_release_notes: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
